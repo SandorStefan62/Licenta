@@ -1,5 +1,55 @@
+import os
 import cv2
 import mediapipe as mp
+import numpy as np
+
+def citire_config(cale):
+    config = {}
+    with open(cale, 'r') as fisier:
+        for linie in fisier:
+            id, valoare = linie.strip().split(" = ")
+            config[id] = valoare.split(', ')
+
+    return config
+
+def extrapolare_valori(rezultat):
+    corp = []
+    if rezultat.pose_landmarks:
+        for rez in rezultat.pose_landmarks.landmark:
+            aux = np.array([rez.x, rez.y, rez.z, rez.visibility])
+            corp.append(aux)
+        corp = np.array(corp).flatten()
+    else:
+        corp = np.zeros(132)
+    
+    fata = []
+    if rezultat.face_landmarks:
+        for rez in rezultat.face_landmarks.landmark:
+            aux = np.array([rez.x, rez.y, rez.z])
+            fata.append(aux)
+        fata = np.array(fata).flatten()
+    else:
+        fata = np.zeros(1404)
+
+    mana_stanga = []
+    if rezultat.left_hand_landmarks:
+        for rez in rezultat.left_hand_landmarks.landmark:
+            aux = np.array([rez.x, rez.y, rez.z])
+            mana_stanga.append(aux)
+        mana_stanga = np.array(mana_stanga).flatten()
+    else:
+        mana_stanga = np.zeros(63)
+
+    mana_dreapta = []
+    if rezultat.right_hand_landmarks:
+        for rez in rezultat.right_hand_landmarks.landmark:
+            aux = np.array([rez.x, rez.y, rez.z])
+            mana_dreapta.append(aux)
+        mana_dreapta = np.array(mana_dreapta).flatten()
+    else:
+        mana_dreapta = np.zeros(63)
+
+    return np.concatenate([corp, fata, mana_stanga, mana_dreapta])
 
 #model holistic si unelte pentru desenarea modelului
 mp_holistic = mp.solutions.holistic
@@ -20,31 +70,33 @@ culoare_puncte_reper_mana_dreapta = (43, 75, 238)
 #functie care genereaza si afiseaza harta topografica a fetei si mainilor
 def generare_puncte_reper(imagine, rezultat):
     mp_drawing.draw_landmarks(imagine, rezultat.face_landmarks, mp_holistic.FACEMESH_TESSELATION,
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_fata, thickness=1, circle_radius=1),
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_fata, thickness=1, circle_radius=1)
+                              mp_drawing.DrawingSpec(culoare_puncte_reper_fata, thickness = 1, circle_radius = 1),
+                              mp_drawing.DrawingSpec(culoare_puncte_reper_fata, thickness = 1, circle_radius = 1)
                               )
     mp_drawing.draw_landmarks(imagine, rezultat.pose_landmarks,
                               mp_holistic.POSE_CONNECTIONS,
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_corp, thickness=1, circle_radius=1),
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_corp, thickness=1, circle_radius=1)
+                              mp_drawing.DrawingSpec(culoare_puncte_reper_corp, thickness = 1, circle_radius = 1),
+                              mp_drawing.DrawingSpec(culoare_puncte_reper_corp, thickness = 1, circle_radius = 1)
                               )
     mp_drawing.draw_landmarks(imagine, rezultat.left_hand_landmarks,
                               mp_holistic.HAND_CONNECTIONS,
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_mana_stanga, thickness=1, circle_radius=1),
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_mana_stanga, thickness=1, circle_radius=1)
+                              mp_drawing.DrawingSpec(culoare_puncte_reper_mana_stanga, thickness = 1, circle_radius = 1),
+                              mp_drawing.DrawingSpec(culoare_puncte_reper_mana_stanga, thickness = 1, circle_radius = 1)
                               )
     mp_drawing.draw_landmarks(imagine, rezultat.right_hand_landmarks,
                               mp_holistic.HAND_CONNECTIONS,
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_mana_dreapta, thickness=1, circle_radius=1),
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_mana_dreapta, thickness=1, circle_radius=1)
+                              mp_drawing.DrawingSpec(culoare_puncte_reper_mana_dreapta, thickness = 1, circle_radius = 1),
+                              mp_drawing.DrawingSpec(culoare_puncte_reper_mana_dreapta, thickness = 1, circle_radius = 1)
                               )
 
 capturare = cv2.VideoCapture(0)
-capturare.set(3, 1920)
-capturare.set(4, 1080)
+# capturare.set(3, 1920)
+# capturare.set(4, 1080)
 
-fps = capturare.get(cv2.CAP_PROP_FPS)
-print(fps)
+config = citire_config('configurare.txt')
+cuvinte = config['cuvinte']
+numar_capturi = int(config['numar_capturi'][0])
+lungime_captura = int(config['lungime_captura'][0])
 
 with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
     while capturare.isOpened():
@@ -53,7 +105,8 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         # print(rezultat)
         generare_puncte_reper(imagine, rezultat)
         cv2.imshow('OpenCV Feed', imagine)
-        cv2.resizeWindow('OpenCV Feed', 1920, 1080)
+        valori_extrapolate = extrapolare_valori(rezultat)
+        # cv2.resizeWindow('OpenCV Feed', 1920, 1080)
         if(cv2.waitKey(10) & 0xFF == ord('q')):
             break
 

@@ -1,0 +1,3 @@
+cuvinte = buna ziua, multumesc
+numar_capturi = 30
+lungime_captura = 30
