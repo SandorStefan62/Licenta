@@ -3,6 +3,8 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
+from threading import Thread
+
 def citire_config(cale):
     config = {}
     with open(cale, 'r') as fisier:
@@ -69,20 +71,24 @@ culoare_puncte_reper_mana_dreapta = (43, 75, 238)
 
 #functie care genereaza si afiseaza harta topografica a fetei si mainilor
 def generare_puncte_reper(imagine, rezultat):
+
     mp_drawing.draw_landmarks(imagine, rezultat.face_landmarks, mp_holistic.FACEMESH_TESSELATION,
                               mp_drawing.DrawingSpec(culoare_puncte_reper_fata, thickness = 1, circle_radius = 1),
                               mp_drawing.DrawingSpec(culoare_puncte_reper_fata, thickness = 1, circle_radius = 1)
                               )
+    
     mp_drawing.draw_landmarks(imagine, rezultat.pose_landmarks,
                               mp_holistic.POSE_CONNECTIONS,
                               mp_drawing.DrawingSpec(culoare_puncte_reper_corp, thickness = 1, circle_radius = 1),
                               mp_drawing.DrawingSpec(culoare_puncte_reper_corp, thickness = 1, circle_radius = 1)
                               )
+    
     mp_drawing.draw_landmarks(imagine, rezultat.left_hand_landmarks,
                               mp_holistic.HAND_CONNECTIONS,
                               mp_drawing.DrawingSpec(culoare_puncte_reper_mana_stanga, thickness = 1, circle_radius = 1),
                               mp_drawing.DrawingSpec(culoare_puncte_reper_mana_stanga, thickness = 1, circle_radius = 1)
                               )
+    
     mp_drawing.draw_landmarks(imagine, rezultat.right_hand_landmarks,
                               mp_holistic.HAND_CONNECTIONS,
                               mp_drawing.DrawingSpec(culoare_puncte_reper_mana_dreapta, thickness = 1, circle_radius = 1),
@@ -90,25 +96,55 @@ def generare_puncte_reper(imagine, rezultat):
                               )
 
 capturare = cv2.VideoCapture(0)
-# capturare.set(3, 1920)
-# capturare.set(4, 1080)
+capturare.set(3, 1920)
+capturare.set(4, 1080)
+
+DATA_PATH = os.path.join('dataset')
 
 config = citire_config('configurare.txt')
 cuvinte = config['cuvinte']
 numar_capturi = int(config['numar_capturi'][0])
 lungime_captura = int(config['lungime_captura'][0])
 
-with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
-    while capturare.isOpened():
-        ret, cadru = capturare.read()
-        imagine, rezultat = detectare_mediapipe(cadru, holistic)
-        # print(rezultat)
-        generare_puncte_reper(imagine, rezultat)
-        cv2.imshow('OpenCV Feed', imagine)
-        valori_extrapolate = extrapolare_valori(rezultat)
-        # cv2.resizeWindow('OpenCV Feed', 1920, 1080)
-        if(cv2.waitKey(10) & 0xFF == ord('q')):
-            break
+# print(f"{cuvinte} {numar_capturi} {lungime_captura}")
+
+for cuvant in cuvinte:
+    for captura in range(numar_capturi):
+        try:
+            os.makedirs(os.path.join(DATA_PATH, cuvant, str(captura)))
+        except:
+            pass
+
+with mp_holistic.Holistic(min_detection_confidence=0.6, min_tracking_confidence=0.6) as holistic:
+    for cuvant in cuvinte:
+        for captura in range(numar_capturi):
+            for numar_cadru in range(lungime_captura):
+
+                ret, cadru = capturare.read()
+
+                imagine, rezultat = detectare_mediapipe(cadru, holistic)
+
+                generare_puncte_reper(imagine, rezultat)
+
+                if numar_cadru == 0:
+                    cv2.putText(imagine, "PORNIRE COLECTARE VIDEOCLIPURI", (120, 200),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 4, cv2.LINE_AA)
+                    cv2.putText(imagine, 'Colectare cadre pentru {}, numar videoclip {}'.format(cuvant, captura), (15, 12),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+                    cv2.waitKey(2000)
+                else:
+                    cv2.putText(imagine, 'Colectare cadre pentru {}, numarul videoclipului {}'.format(cuvant, captura), (15,12),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+                    
+                valori_cheie = extrapolare_valori(rezultat)
+                cale_fisier = os.path.join(DATA_PATH, cuvant, str(captura), str(numar_cadru))
+                np.save(cale_fisier, valori_cheie)
+
+                cv2.imshow('OpenCV Feed', imagine)
+                cv2.resizeWindow('OpenCV Feed', 1920, 1080)
+
+                if(cv2.waitKey(10) & 0xFF == ord('q')):
+                    break
 
 capturare.release()
 cv2.destroyAllWindows()
