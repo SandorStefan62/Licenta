@@ -29,22 +29,6 @@ function DetectareHolistica() {
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
         canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-        //deseneaza punctele cheie ale fetei
-        // if (results.segmentationMask) {
-        //     canvasCtx.drawImage(results.segmentationMask, 0, 0, canvasElement.width, canvasElement.height);
-
-        //     canvasCtx.globalCompositeOperation = 'source-in';
-        //     canvasCtx.fillStyle = '#00FF007F';
-        //     canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-
-        //     canvasCtx.globalCompositeOperation = 'destination-atop';
-        //     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-        //     canvasCtx.globalCompositeOperation = 'source-over';
-        // }
-        // else {
-        //     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-        // }
-
         //deseneaza punctele cheie ale corpului
         canvasCtx.lineWidth = 5;
         if (results.poseLandmarks) {
@@ -55,7 +39,6 @@ function DetectareHolistica() {
                 canvasCtx.fill();
             }
         }
-
 
         //deseneaza pucntele cheie ale mainii stangi
         if (results.leftHandLandmarks) {
