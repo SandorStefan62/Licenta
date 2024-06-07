@@ -3,7 +3,6 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-from threading import Thread
 
 def citire_config(cale):
     config = {}
