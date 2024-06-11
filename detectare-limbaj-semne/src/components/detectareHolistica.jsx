@@ -22,6 +22,8 @@ function DetectareHolistica() {
     const hiddenCanvasRef = useRef(null);
 
     const effectRan = useRef(false)
+    const holisticRef = useRef(null);
+    const cameraRef = useRef(null);
 
     //model variables
     const [model, setModel] = useState(null);
@@ -195,10 +197,12 @@ function DetectareHolistica() {
                 if (typeof videoRef.current !== "undefined" && videoRef.current !== null) {
                     const camera = new Camera.Camera(videoRef.current, {
                         onFrame: async () => {
-                            try {
-                                await holistic.send({ image: videoRef.current });
-                            } catch (error) {
-                                console.error("Eroare la trimiterea video-ului spre MediaPipe: ", error);
+                            if (videoRef.current) {
+                                try {
+                                    await holistic.send({ image: videoRef.current });
+                                } catch (error) {
+                                    console.error("Eroare la trimiterea video-ului spre MediaPipe: ", error);
+                                }
                             }
                         },
                         width: 1920,
@@ -206,11 +210,20 @@ function DetectareHolistica() {
 
                     });
                     camera.start();
-                }
 
-                return () => {
-                    effectRan.current = true;
+                    holisticRef.current = holistic;
+                    cameraRef.current = camera;
                 }
+                effectRan.current = true;
+            }
+        }
+        return () => {
+            effectRan.current = false;
+            if (cameraRef.current) {
+                cameraRef.current.stop();
+            }
+            if (holisticRef.current) {
+                holisticRef.current.close()
             }
         }
     }, [modelLoaded]);
