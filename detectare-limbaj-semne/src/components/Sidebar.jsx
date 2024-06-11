@@ -78,6 +78,39 @@ img {
 }
 `;
 
+const Profile = styled.div`
+width: ${(props) => (props.clicked === "true" ? "14rem" : "3rem")};
+margin-left: ${(props) => (props.clicked === "true" ? "9rem" : "0")};
+transition: all 0.3s ease;
+
+img {
+  &:hover {
+    border: 2px solid var(--grey);
+    padding: 2px;
+  }
+}
+`;
+
+const Details = styled.div`
+display: ${(props) => (props.clicked === "true" ? "flex" : "none")};
+`;
+
+const Name = styled.div`
+h4 {
+  display: inline-block
+}
+
+a {
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: var(--grey);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+`;
+
 const Text = styled.span`
 width: ${(props) => (props.clicked === "true" ? "100%" : "0")};
 overflow: hidden;
@@ -88,7 +121,9 @@ transition: all 0.3s ease;
 
 const Sidebar = () => {
   const [click, setClick] = useState(false);
-  const handleClick = () => setClick(!click);
+  const [profileClick, setProfileClick] = useState(false);
+  const handleClick = () => setClick((prevClick) => !prevClick);
+  const handleProfileClick = () => setProfileClick((prevProfileClick) => !prevProfileClick);
 
   return (
     <Container className="fixed">
@@ -120,6 +155,15 @@ const Sidebar = () => {
             <Text clicked={click.toString()}>Sign Language Detection</Text>
           </Item>
         </SlickBar>
+        <Profile className="h-12 py-2 px-4 rounded-[20px] flex items-center justify-center bg-primary-color text-white" clicked={profileClick.toString()}>
+          <img onClick={() => handleProfileClick()} src="" alt="Profile" />
+          <Details className="justify-space-between items-center" clicked={profileClick.toString()}>
+            <Name className="px-6 flex flex-col justify-center items-center">
+              <h4>John Doe</h4>
+              <a href="/#">View&nbsp;profile</a>
+            </Name>
+          </Details>
+        </Profile>
       </SidebarContainer>
     </Container>
   );
