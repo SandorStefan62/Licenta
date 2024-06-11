@@ -8,12 +8,6 @@ import About from "./pages/About";
 import Detection from "./pages/Detection"
 
 const Pages = styled.div`
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
   h1 {
     font-size: calc(2rem + 2vw);
     color: var(--white)
@@ -25,7 +19,7 @@ function App() {
   return (
     <>
       <Sidebar />
-      <Pages>
+      <Pages className="w-screen h-screen flex justify-center items-center">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route exact path="/" element={<Home />} />
