@@ -7,6 +7,10 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Detection from "./pages/Detection"
+import Dictionary from "./pages/Dictionary";
+import Practice from "./pages/Practice";
+import UserProfile from "./pages/UserProfile";
+import Settings from "./pages/Settings";
 
 const Pages = styled.div`
 `;
@@ -24,7 +28,11 @@ function App() {
             <Route exact path="/" element={<Home />} />
             <Route exact path="/Login" element={<Login />} />
             <Route exact path="/About" element={<About />} />
+            <Route exact path="/Dictionary" element={<Dictionary />} />
             <Route exact path="/Detection" element={<Detection />} />
+            <Route exact path="/Practice" element={<Practice />} />
+            <Route exact path="/UserProfile" element={<UserProfile />} />
+            <Route exact path="/Settings" element={<Settings />} />
           </Routes>
         </AnimatePresence>
       </Pages>

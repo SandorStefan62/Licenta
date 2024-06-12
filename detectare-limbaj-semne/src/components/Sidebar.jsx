@@ -1,13 +1,19 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import "../index.css"
+import { motion } from "framer-motion";
 
 //All the svg files
 import Home from "../assets/home.svg";
 import About from "../assets/about.svg";
 import Camera from "../assets/camera.svg";
 import Power from "../assets/power.svg";
+import Book from "../assets/book.svg";
+import Notebook from "../assets/notebook.svg";
+import User from "../assets/user.svg";
+import Settings from "../assets/settings.svg";
+import UserImage from "../assets/user-image.svg";
+import Logo from "../assets/logo.png";
 
 const Container = styled.div`
 .active {
@@ -74,8 +80,6 @@ padding-left: 1rem;
 img {
   width: 1.2rem;
   height: auto;
-  filter: invert(92%) sepia(4%) saturate(1033%) hue-rotate(169deg)
-  brightness(78%) contrast(85%);
 }
 `;
 
@@ -85,6 +89,8 @@ margin-left: ${(props) => (props.clicked === "true" ? "9rem" : "0")};
 transition: all 0.3s ease;
 
 img {
+  width: 2rem;
+  height: auto;
   &:hover {
     border: 2px solid var(--grey);
     padding: 2px;
@@ -146,9 +152,15 @@ const Sidebar = () => {
   return (
     <Container className="fixed">
       <Button className="bg-primary-color border-none w-10 h-10 rounded-full mt-2 ml-2 cursor-pointer flex justify-center items-center relative" clicked={click.toString()} onClick={() => handleClick()} />
-      <SidebarContainer className="bg-primary-color w-14 mt-4 rounded-r-[30px] py-4 flex flex-col items-center justify-between relative">
+      <SidebarContainer
+        as={motion.div}
+        initial={{ opacity: 0.2 }}
+        whileHover={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="bg-primary-color w-14 mt-4 rounded-r-[30px] py-4 flex flex-col items-center justify-between relative"
+      >
         <div className="w-8">
-          <img className="w-full h-auto" src="" alt="logo" />
+          <img className="w-full h-auto" src={Logo} alt="logo" />
         </div>
         <SlickBar className="text-white list-none flex flex-col items-center bg-primary-color py-8 absolute top-24 left-0" clicked={click.toString()}>
           <Item
@@ -167,14 +179,42 @@ const Sidebar = () => {
           </Item>
           <Item
             onClick={() => setClick(false)}
+            to="/Dictionary"
+          >
+            <img src={Book} alt="Dictionary" />
+            <Text clicked={click.toString()}>Sign language Dictionary</Text>
+          </Item>
+          <Item
+            onClick={() => setClick(false)}
             to="/Detection"
           >
             <img src={Camera} alt="Camera" />
             <Text clicked={click.toString()}>Sign Language Detection</Text>
           </Item>
+          <Item
+            onClick={() => setClick(false)}
+            to="/Practice"
+          >
+            <img src={Notebook} alt="Practice" />
+            <Text clicked={click.toString()}>Practice</Text>
+          </Item>
+          <Item
+            onClick={() => setClick(false)}
+            to="/UserProfile"
+          >
+            <img src={User} alt="User Profile" />
+            <Text clicked={click.toString()}>User Profile</Text>
+          </Item>
+          <Item
+            onClick={() => setClick(false)}
+            to="/Settings"
+          >
+            <img src={Settings} alt="Settings" />
+            <Text clicked={click.toString()}>Settings</Text>
+          </Item>
         </SlickBar>
         <Profile className="h-12 py-2 px-4 rounded-[20px] flex items-center justify-center bg-primary-color text-white" clicked={profileClick.toString()}>
-          <img onClick={() => handleProfileClick()} src="" alt="Profile" />
+          <img onClick={() => handleProfileClick()} src={UserImage} alt="Profile" />
           <Details className="justify-space-between items-center" clicked={profileClick.toString()}>
             <Name className="px-6 flex flex-col justify-center items-center">
               <h4>John Doe</h4>
