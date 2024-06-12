@@ -11,7 +11,8 @@ import {
     FACEMESH_LEFT_EYE,
     FACEMESH_LEFT_EYEBROW,
     FACEMESH_FACE_OVAL,
-    FACEMESH_LIPS
+    FACEMESH_LIPS,
+    POSE_CONNECTIONS
 } from "@mediapipe/holistic"
 import * as Camera from "@mediapipe/camera_utils"
 import * as drawingUtils from "@mediapipe/drawing_utils"
@@ -30,10 +31,10 @@ function DetectareHolistica() {
     const [predictions, setPredictions] = useState([]);
     const [sentence, setSentence] = useState([]);
     const [frames, setFrames] = useState([]);
-    const [modelLoaded, setModelLoaded] = useState(false);
     const actions = ["buna ziua", "multumesc", "salut"];
     const treshold = 0.5;
 
+    const [modelLoaded, setModelLoaded] = useState(false);
     //load the model
     const loadModel = async () => {
         try {
@@ -94,9 +95,9 @@ function DetectareHolistica() {
         canvasCtx.lineWidth = 5;
 
         if (results.poseLandmarks) {
-            const filteredLandmarks = removeElements(results.poseLandmarks, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18, 19, 20, 21, 22]);
+            const filteredLandmarks = removeElements(results.poseLandmarks, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
 
-            drawingUtils.drawConnectors(canvasCtx, filteredLandmarks, POSE_LANDMARKS, { color: 'white' })
+            // drawingUtils.drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: 'white' })
             drawingUtils.drawLandmarks(
                 canvasCtx,
                 filteredLandmarks.filter((_, index) => Object.values(POSE_LANDMARKS_LEFT).includes(index)),
@@ -231,7 +232,7 @@ function DetectareHolistica() {
     return (
         <div style={{ width: '960px', height: '540px' }}>
             <video ref={videoRef} style={{ display: 'none' }}></video>
-            <canvas ref={hiddenCanvasRef} width="1920" height="1080" style={{ maxWidth: '100%' }}></canvas>
+            <canvas ref={hiddenCanvasRef} width="1920" height="1080" style={{ maxWidth: "100%" }}></canvas>
             <div>{sentence.join(' ')}</div>
         </div>
     )

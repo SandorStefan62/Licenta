@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import "../index.css"
 
@@ -7,6 +7,7 @@ import "../index.css"
 import Home from "../assets/home.svg";
 import About from "../assets/about.svg";
 import Camera from "../assets/camera.svg";
+import Power from "../assets/power.svg";
 
 const Container = styled.div`
 .active {
@@ -111,6 +112,18 @@ a {
 }
 `;
 
+const Logout = styled.button`
+img {
+  transition: all 0.3s ease;
+
+  &:hover {
+    border: none;
+    padding: 0;
+    opacity: 0.5;
+  }
+}
+`;
+
 const Text = styled.span`
 width: ${(props) => (props.clicked === "true" ? "100%" : "0")};
 overflow: hidden;
@@ -120,10 +133,15 @@ transition: all 0.3s ease;
 `;
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const [click, setClick] = useState(false);
   const [profileClick, setProfileClick] = useState(false);
+
   const handleClick = () => setClick((prevClick) => !prevClick);
   const handleProfileClick = () => setProfileClick((prevProfileClick) => !prevProfileClick);
+  const handleLogout = () => {
+    navigate("/Login");
+  }
 
   return (
     <Container className="fixed">
@@ -162,6 +180,9 @@ const Sidebar = () => {
               <h4>John Doe</h4>
               <a href="/#">View&nbsp;profile</a>
             </Name>
+            <Logout className="border-none w-8 h-8 bg-transparent" onClick={() => handleLogout()}>
+              <img className="w-full h-auto" src={Power} alt="Logout" />
+            </Logout>
           </Details>
         </Profile>
       </SidebarContainer>
