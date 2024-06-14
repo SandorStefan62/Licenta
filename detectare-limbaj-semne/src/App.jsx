@@ -58,7 +58,7 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
+    if (token && location.pathname !== "/Login") {
       verifyToken(token);
     } else {
       setIsAdmin(false);

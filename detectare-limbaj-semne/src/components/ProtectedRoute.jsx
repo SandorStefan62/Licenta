@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 
 function ProtectedRoute({ children }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const verifyToken = async (token) => {
         try {
@@ -22,6 +23,8 @@ function ProtectedRoute({ children }) {
         } catch (error) {
             console.error("Error verifying token: ", error);
             setIsAuthenticated(false);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -32,11 +35,12 @@ function ProtectedRoute({ children }) {
             verifyToken(token);
         } else {
             setIsAuthenticated(false);
+            setIsLoading(false);
         }
     }, []);
 
-    if (!isAuthenticated) {
-        return <div>Loading...</div>
+    if (isLoading) {
+        return (<></>);
     }
 
     return isAuthenticated ? children : <Navigate to="/Login" />;
