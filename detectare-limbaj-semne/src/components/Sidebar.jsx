@@ -10,6 +10,7 @@ import Camera from "../assets/camera.svg";
 import Power from "../assets/power.svg";
 import Book from "../assets/book.svg";
 import Notebook from "../assets/notebook.svg";
+import Administrator from "../assets/administrator.svg";
 import User from "../assets/user.svg";
 import Settings from "../assets/settings.svg";
 import UserImage from "../assets/user-image.svg";
@@ -28,6 +29,8 @@ const Container = styled.div`
 
 const SidebarContainer = styled.div`
   height: 90vh;
+  opacity: ${(props) => (props.clicked === "true" ? 1 : 0.2)};
+  transition: all 0.3s ease;
 `;
 
 const Button = styled.button`
@@ -110,7 +113,6 @@ h4 {
 a {
   font-size: 0.8rem;
   text-decoration: none;
-  color: var(--grey);
 
   &:hover {
     text-decoration: underline;
@@ -138,22 +140,27 @@ margin-left: ${(props) => (props.clicked ? "1.5rem" : "0")};
 transition: all 0.3s ease;
 `;
 
-const Sidebar = () => {
+const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
   const navigate = useNavigate();
   const [click, setClick] = useState(false);
   const [profileClick, setProfileClick] = useState(false);
 
-  const handleClick = () => setClick((prevClick) => !prevClick);
+  const handleClick = () => setClick((prevClick) => !prevClick)
   const handleProfileClick = () => setProfileClick((prevProfileClick) => !prevProfileClick);
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false)
     navigate("/Login");
   }
 
+
+
   return (
     <Container className="fixed">
-      <Button className="bg-primary-color border-none w-10 h-10 rounded-full mt-2 ml-2 cursor-pointer flex justify-center items-center relative" clicked={click.toString()} onClick={() => handleClick()} />
+      <Button className="bg-primary-color border-none w-10 h-10 rounded-full mt-2 ml-2 cursor-pointer flex justify-center items-center relative" clicked={click.toString()} onClick={handleClick} />
       <SidebarContainer
         as={motion.div}
+        animate={{ opacity: click ? 1 : 0.2 }}
         initial={{ opacity: 0.2 }}
         whileHover={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -198,6 +205,17 @@ const Sidebar = () => {
             <img src={Notebook} alt="Practice" />
             <Text clicked={click.toString()}>Practice</Text>
           </Item>
+          {isAdmin ? (
+            <Item
+              onClick={() => setClick(false)}
+              to="/Admin"
+            >
+              <img src={Administrator} alt="Admin" />
+              <Text clicked={click.toString()}>Administrator Dashboard</Text>
+            </Item>
+          ) : (
+            <></>
+          )}
           <Item
             onClick={() => setClick(false)}
             to="/UserProfile"
@@ -220,7 +238,7 @@ const Sidebar = () => {
               <h4>John Doe</h4>
               <a href="/#">View&nbsp;profile</a>
             </Name>
-            <Logout className="border-none w-8 h-8 bg-transparent" onClick={() => handleLogout()}>
+            <Logout className="border-none w-8 h-8 bg-transparent" onClick={() => { handleLogout() }}>
               <img className="w-full h-auto" src={Power} alt="Logout" />
             </Logout>
           </Details>
