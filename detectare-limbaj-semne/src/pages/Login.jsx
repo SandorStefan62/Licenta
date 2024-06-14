@@ -54,19 +54,81 @@ button {
 }
 `;
 
-function Login() {
+function Login({ setIsLoggedIn }) {
     const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [action, setAction] = useState("Sign Up");
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        navigate("/");
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch("https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ identifier, password })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                const token = data.token;
+                localStorage.setItem("token", token);
+                setIsLoggedIn(true);
+                navigate("/");
+            } else {
+                alert("Login failed: " + data.error);
+            }
+        } catch (error) {
+            console.error("Error during login: ", error);
+            alert("Error during login. Please try again.");
+        }
+    }
+
+    const handleSignUp = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch("https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, email, password, role: "user" })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setAction("Login");
+                alert("Registration successful! Please log in.");
+            } else {
+                alert("Registration failed: " + data.message);
+            }
+        } catch (error) {
+            console.error("Error during registration: ", error);
+        }
+    }
+
+    const handleSubmit = (e) => {
+        if (action === "Sign Up") {
+            handleSignUp(e);
+        } else {
+            handleLogin(e);
+        }
+    }
+
+    const clearFields = () => {
+        setUsername("");
+        setEmail("");
+        setIdentifier("");
+        setPassword("");
     }
 
     return (
         <div className="w-full h-screen flex justify-center items-center">
-            <form onSubmit={handleLogin} className="flex flex-col m-auto bg-primary-color pb-8 w-128 rounded-3xl">
+            <form onSubmit={handleSubmit} className="flex flex-col m-auto bg-primary-color pb-8 w-128 rounded-3xl">
                 <motion.div
                     initial={{ height: action === "Sign Up" ? '32rem' : '28rem' }}
                     animate={{ height: action === "Sign Up" ? '32rem' : '28rem' }}
@@ -98,8 +160,13 @@ function Login() {
                                         transition={{ duration: 0.2, delay: 0.1 }}
                                         key="signup-username"
                                     >
-                                        <img className="w-" src={User} alt="User" />
-                                        <input type="text" placeholder="Enter Username" />
+                                        <img src={User} alt="User" />
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Username"
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value)}
+                                        />
                                     </Input>
                                     <Input
                                         as={motion.div}
@@ -110,7 +177,12 @@ function Login() {
                                         key="signup-email"
                                     >
                                         <img src={Letter} alt="Email" />
-                                        <input type="email" placeholder="Enter Email" />
+                                        <input
+                                            type="email"
+                                            placeholder="Enter Email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                        />
                                     </Input>
                                     <Input
                                         as={motion.div}
@@ -121,7 +193,12 @@ function Login() {
                                         key="signup-password"
                                     >
                                         <img src={Lock} alt="Password" />
-                                        <input type="password" placeholder="Enter Password" />
+                                        <input
+                                            type="password"
+                                            placeholder="Enter Password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                        />
                                     </Input>
                                 </>
                             ) : (
@@ -135,7 +212,12 @@ function Login() {
                                         key="login-username"
                                     >
                                         <img src={User} alt="User" />
-                                        <input type="text" placeholder="Enter Username or Email" />
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Username or Email"
+                                            value={identifier}
+                                            onChange={(e) => setIdentifier(e.target.value)}
+                                        />
                                     </Input>
                                     <Input
                                         as={motion.div}
@@ -146,7 +228,12 @@ function Login() {
                                         key="login-password"
                                     >
                                         <img src={Lock} alt="Password" />
-                                        <input type="password" placeholder="Enter Password" />
+                                        <input
+                                            type="password"
+                                            placeholder="Enter Password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                        />
                                     </Input>
                                 </>
                             )}
@@ -160,7 +247,7 @@ function Login() {
                                 transition={{ duration: 0.2 }}
                                 type="button"
                                 style={(action === "Sign Up" ? {} : { color: "rgba(4, 110, 143, 0.3)", backgroundColor: "var(--tertiary-color)" })}
-                                onClick={() => { setAction("Sign Up") }}
+                                onClick={() => { setAction("Sign Up"); clearFields() }}
                             >
                                 Sign Up
                             </motion.button>
@@ -169,7 +256,7 @@ function Login() {
                                 transition={{ duration: 0.2 }}
                                 type="button"
                                 style={(action === "Login" ? {} : { color: "rgba(4, 110, 143, 0.3)", backgroundColor: "var(--tertiary-color)" })}
-                                onClick={() => { setAction("Login") }}
+                                onClick={() => { setAction("Login"); clearFields() }}
                             >
                                 Login
                             </motion.button>
