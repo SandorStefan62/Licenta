@@ -23,6 +23,7 @@ app.get("/", (req, res) => {
     res.send("Hello World!");
 });
 
+//user signup
 app.post("/signup", async (req, res) => {
     const { username, email, password, role } = req.body;
 
@@ -52,6 +53,9 @@ app.post("/signup", async (req, res) => {
                 email,
                 password: hashedPassword,
                 role,
+                firstName: "",
+                lastName: "",
+                progress: "",
             });
 
             return res
@@ -66,6 +70,7 @@ app.post("/signup", async (req, res) => {
     }
 });
 
+//user login
 app.post("/login", async (req, res) => {
     const { identifier, password } = req.body;
 
@@ -93,7 +98,9 @@ app.post("/login", async (req, res) => {
                 userDoc = userSnapshotByUsername.docs[0];
             }
 
+
             const userData = userDoc.data();
+            console.log(userDoc.id);
 
             const passwordMatch = await bcrypt.compare(password, userData.password);
             if (!passwordMatch) {
@@ -107,6 +114,7 @@ app.post("/login", async (req, res) => {
             expiresAt.setHours(expiresAt.getHours() + 1);
 
             const token = jwt.sign({
+                id: userDoc.id,
                 username: userData.username,
                 role: userData.role,
                 iat: Math.floor(issuedAt.getTime() / 1000),
@@ -126,6 +134,7 @@ app.post("/login", async (req, res) => {
     }
 });
 
+//verify user token 
 app.post('/verify-token', (req, res, next) => {
     const { token } = req.body;
 
@@ -141,6 +150,71 @@ app.post('/verify-token', (req, res, next) => {
 
         return res.status(200).send({ success: true });
     });
+});
+
+//get user by id
+app.get("/user/:id", async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const userReference = await db.collection("users").doc(userId).get();
+
+        if (!userReference.exists) {
+            return res.status(404).send({ error: "User not found." });
+        }
+
+        const userData = userReference.data();
+        return res.status(200).send({ userData });
+    } catch (error) {
+        console.error("Error retrieving user data: ", error);
+        return res.status(500).send({ error: "Inter Server Error" });
+    }
+});
+
+//update user first name by id
+app.patch("/user/:id/firstName", async (req, res) => {
+    const userId = req.params.id;
+    const { firstName } = req.body;
+
+    try {
+        const userReference = await db.collection("users").doc(userId);
+        await userReference.update({ firstName });
+        return res.status(200).send({ message: "First name updated successfully." });
+    } catch (error) {
+        console.error("Error updating first name: ", error);
+        return res.status(500).send({ error: "Internal Server Error" });
+    }
+});
+
+//update user last name by id
+app.patch("/user/:id/lastName", async (req, res) => {
+    const userId = req.params.id;
+    const { lastName } = req.body;
+
+    try {
+        const userReference = await db.collection("users").doc(userId);
+        await userReference.update({ lastName });
+        return res.status(200).send({ message: "Last name updated successfully." });
+    } catch (error) {
+        console.error("Error updating last name: ", error);
+        return res.status(500).send({ error: "Internal Server Error" });
+    }
+});
+
+//update user username by id
+app.patch("/user/:id/username", async (req, res) => {
+    const userId = req.params.id;
+    const { username } = req.body;
+
+    console.log(username);
+
+    try {
+        const userReference = db.collection("users").doc(userId);
+        await userReference.update({ username });
+        return res.status(200).send({ message: "Username updated successfully." });
+    } catch (error) {
+        console.error("Error updating username: ", error);
+        return res.status(500).send({ error: "Internal Server Error" });
+    }
 });
 
 exports.api = functions.region('europe-west1').https.onRequest(app);
