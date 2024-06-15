@@ -29,7 +29,7 @@ const Container = styled.div`
 
 const SidebarContainer = styled.div`
   height: 90vh;
-  opacity: ${(props) => (props.clicked === "true" ? 1 : 0.2)};
+  opacity: ${(props) => (props.$clicked === "true" ? 1 : 0.2)};
   transition: all 0.3s ease;
 `;
 
@@ -45,18 +45,18 @@ const Button = styled.button`
   }
 
   &::before {
-    top: ${(props) => (props.clicked === "true" ? "1.5" : "1rem")};
-    transform: ${(props) => (props.clicked === "true" ? "rotate(135deg)" : "rotate(0)")};
+    top: ${(props) => (props.$clicked === "true" ? "1.5" : "1rem")};
+    transform: ${(props) => (props.$clicked === "true" ? "rotate(135deg)" : "rotate(0)")};
   }
 
   &::after {
-    top: ${(props) => (props.clicked === "true" ? "1.2" : "1.5rem")};
-    transform: ${(props) => (props.clicked === "true" ? "rotate(-135deg)" : "rotate(0)")};
+    top: ${(props) => (props.$clicked === "true" ? "1.2" : "1.5rem")};
+    transform: ${(props) => (props.$clicked === "true" ? "rotate(-135deg)" : "rotate(0)")};
   }
 `;
 
 const SlickBar = styled.ul`
-width: ${(props) => (props.clicked === "true" ? "20rem" : "3.5rem")};
+width: ${(props) => (props.$clicked === "true" ? "20rem" : "3.5rem")};
 transition: all 0.5s ease;
 border-radius: 0 30px 30px 0;
 `;
@@ -87,8 +87,8 @@ img {
 `;
 
 const Profile = styled.div`
-width: ${(props) => (props.clicked === "true" ? "14rem" : "3rem")};
-margin-left: ${(props) => (props.clicked === "true" ? "9rem" : "0")};
+width: ${(props) => (props.$clicked === "true" ? "14rem" : "3rem")};
+margin-left: ${(props) => (props.$clicked === "true" ? "9rem" : "0")};
 transition: all 0.3s ease;
 
 img {
@@ -102,7 +102,7 @@ img {
 `;
 
 const Details = styled.div`
-display: ${(props) => (props.clicked === "true" ? "flex" : "none")};
+display: ${(props) => (props.$clicked === "true" ? "flex" : "none")};
 `;
 
 const Name = styled.div`
@@ -133,10 +133,10 @@ img {
 `;
 
 const Text = styled.span`
-width: ${(props) => (props.clicked === "true" ? "100%" : "0")};
+width: ${(props) => (props.$clicked === "true" ? "100%" : "0")};
 overflow: hidden;
 white-space: nowrap;
-margin-left: ${(props) => (props.clicked ? "1.5rem" : "0")};
+margin-left: ${(props) => (props.$clicked ? "1.5rem" : "0")};
 transition: all 0.3s ease;
 `;
 
@@ -157,10 +157,10 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
 
   return (
     <Container className="fixed">
-      <Button className="bg-primary-color border-none w-10 h-10 rounded-full mt-2 ml-2 cursor-pointer flex justify-center items-center relative" clicked={click.toString()} onClick={handleClick} />
+      <Button className="bg-primary-color border-none w-10 h-10 rounded-full mt-2 ml-2 cursor-pointer flex justify-center items-center relative" $clicked={click.toString()} onClick={handleClick} />
       <SidebarContainer
         as={motion.div}
-        animate={{ opacity: click ? 1 : 0.2 }}
+        animate={{ opacity: (click || profileClick) ? 1 : 0.2 }}
         initial={{ opacity: 0.2 }}
         whileHover={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -169,41 +169,41 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
         <div className="w-8">
           <img className="w-full h-auto" src={Logo} alt="logo" />
         </div>
-        <SlickBar className="text-white list-none flex flex-col items-center bg-primary-color py-8 absolute top-24 left-0" clicked={click.toString()}>
+        <SlickBar className="text-white list-none flex flex-col items-center bg-primary-color py-8 absolute top-24 left-0" $clicked={click.toString()}>
           <Item
             onClick={() => setClick(false)}
             to="/"
           >
             <img src={Home} alt="Home" />
-            <Text clicked={click.toString()}>Home</Text>
+            <Text $clicked={click.toString()}>Home</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/About"
           >
             <img src={About} alt="About" />
-            <Text clicked={click.toString()}>About Us</Text>
+            <Text $clicked={click.toString()}>About Us</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/Dictionary"
           >
             <img src={Book} alt="Dictionary" />
-            <Text clicked={click.toString()}>Sign language Dictionary</Text>
+            <Text $clicked={click.toString()}>Sign language Dictionary</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/Detection"
           >
             <img src={Camera} alt="Camera" />
-            <Text clicked={click.toString()}>Sign Language Detection</Text>
+            <Text $clicked={click.toString()}>Sign Language Detection</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/Practice"
           >
             <img src={Notebook} alt="Practice" />
-            <Text clicked={click.toString()}>Practice</Text>
+            <Text $clicked={click.toString()}>Practice</Text>
           </Item>
           {isAdmin ? (
             <Item
@@ -211,7 +211,7 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
               to="/Admin"
             >
               <img src={Administrator} alt="Admin" />
-              <Text clicked={click.toString()}>Administrator Dashboard</Text>
+              <Text $clicked={click.toString()}>Administrator Dashboard</Text>
             </Item>
           ) : (
             <></>
@@ -221,19 +221,19 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
             to="/UserProfile"
           >
             <img src={User} alt="User Profile" />
-            <Text clicked={click.toString()}>User Profile</Text>
+            <Text $clicked={click.toString()}>User Profile</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/Settings"
           >
             <img src={Settings} alt="Settings" />
-            <Text clicked={click.toString()}>Settings</Text>
+            <Text $clicked={click.toString()}>Settings</Text>
           </Item>
         </SlickBar>
-        <Profile className="h-12 py-2 px-4 rounded-[20px] flex items-center justify-center bg-primary-color text-white" clicked={profileClick.toString()}>
+        <Profile className="h-12 py-2 px-4 rounded-[20px] flex items-center justify-center bg-primary-color text-white" $clicked={profileClick.toString()}>
           <img onClick={() => handleProfileClick()} src={UserImage} alt="Profile" />
-          <Details className="justify-space-between items-center" clicked={profileClick.toString()}>
+          <Details className="justify-space-between items-center" $clicked={profileClick.toString()}>
             <Name className="px-6 flex flex-col justify-center items-center">
               <h4>John Doe</h4>
               <a href="/#">View&nbsp;profile</a>
