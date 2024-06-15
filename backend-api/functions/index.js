@@ -204,10 +204,13 @@ app.patch("/user/:id/lastName", async (req, res) => {
 app.patch("/user/:id/username", async (req, res) => {
     const userId = req.params.id;
     const { username } = req.body;
-
-    console.log(username);
-
     try {
+        const existingUserSnapshot = await db.collection("users").where("username", "==", username).get();
+
+        if (!existingUserSnapshot.empty) {
+            return res.status(400).send({ error: "Username already exists." });
+        }
+
         const userReference = db.collection("users").doc(userId);
         await userReference.update({ username });
         return res.status(200).send({ message: "Username updated successfully." });

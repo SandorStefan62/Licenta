@@ -90,7 +90,6 @@ function Login({ setIsLoggedIn }) {
 
     const handleSignUp = async (e) => {
         e.preventDefault();
-        console.log(JSON.stringify({ username, email, password, role: "user" }));
         try {
             const response = await fetch("http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/signup", {
                 method: "POST",

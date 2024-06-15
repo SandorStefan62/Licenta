@@ -156,7 +156,7 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
 
 
   return (
-    <Container className="fixed">
+    <Container className="fixed z-10  ">
       <Button className="bg-primary-color border-none w-10 h-10 rounded-full mt-2 ml-2 cursor-pointer flex justify-center items-center relative" $clicked={click.toString()} onClick={handleClick} />
       <SidebarContainer
         as={motion.div}

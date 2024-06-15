@@ -76,10 +76,10 @@ function UserProfileComponent() {
                 console.log(data.message);
             } else {
                 const errorData = await response.json();
-                console.error("Failed to update first name: ", errorData.error);
+                console.error("Failed to update last name: ", errorData.error);
             }
         } catch (error) {
-            console.error("Error updating first name: ", error);
+            console.error("Error updating last name: ", error);
         } finally {
             setIsEditingLastName(false);
             fetchUserData(token);
@@ -109,10 +109,11 @@ function UserProfileComponent() {
                 console.log(data.message);
             } else {
                 const errorData = await response.json();
-                console.error("Failed to update first name: ", errorData.error);
+                alert("Failed to update username: " + errorData.error);
+                console.error("Failed to update username: ", errorData.error);
             }
         } catch (error) {
-            console.error("Error updating first name: ", error);
+            console.error("Error updating username: ", error);
         } finally {
             setIsEditingUsername(false);
             fetchUserData(token);
@@ -130,13 +131,39 @@ function UserProfileComponent() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    setUser({
-                        firstName: data.userData.firstName,
-                        lastName: data.userData.lastName,
-                        username: data.userData.username,
-                        email: data.userData.email,
-                        role: data.userData.role
-                    });
+                    if (!response.firstName && !response.lastName) {
+                        setUser({
+                            firstName: "",
+                            lastName: "",
+                            username: data.userData.username,
+                            email: data.userData.email,
+                            role: data.userData.role
+                        });
+                    } else if (!response.firstName) {
+                        setUser({
+                            firstName: "",
+                            lastName: data.userData.lastName,
+                            username: data.userData.username,
+                            email: data.userData.email,
+                            role: data.userData.role
+                        });
+                    } else if (!response.lastName) {
+                        setUser({
+                            firstName: data.userData.firstName,
+                            lastName: "",
+                            username: data.userData.username,
+                            email: data.userData.email,
+                            role: data.userData.role
+                        });
+                    } else {
+                        setUser({
+                            firstName: data.userData.firstName,
+                            lastName: data.userData.lastName,
+                            username: data.userData.username,
+                            email: data.userData.email,
+                            role: data.userData.role
+                        });
+                    }
                 } else {
                     console.error("Failed to fetch user data: ", data.error);
                 }
@@ -155,7 +182,7 @@ function UserProfileComponent() {
     }, [])
 
     return (
-        <div className="w-full h-full flex flex-row justify-center items-center gap-4">
+        <div className="w-full h-full absolute flex flex-row justify-center items-center gap-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: [null, 1.02, 1] }}
@@ -203,8 +230,8 @@ function UserProfileComponent() {
                     <h1 className="text-2xl font-bold ml-4">
                         First Name:&nbsp;
                         <motion.input
-                            initial={{ backgroundColor: isEditingFirstName ? "#89abf5" : "var(--tertiary-color)", paddingLeft: isEditingFirstName ? 0 : "0.5rem" }}
-                            animate={{ backgroundColor: isEditingFirstName ? "var(--tertiary-color)" : "#89abf5", paddingLeft: isEditingFirstName ? "0.5rem" : 0 }}
+                            initial={{ backgroundColor: isEditingFirstName ? "#89abf5" : "var(--tertiary-color)", paddingLeft: isEditingFirstName ? "0" : "0.5rem" }}
+                            animate={{ backgroundColor: isEditingFirstName ? "var(--tertiary-color)" : "#89abf5", paddingLeft: isEditingFirstName ? "0.5rem" : "0" }}
                             transition={{ duration: 0.2 }}
                             className={`bg-transparent border-none outline-none rounded-md`}
                             placeholder={user.firstName}
