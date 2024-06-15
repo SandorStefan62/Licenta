@@ -65,7 +65,7 @@ function Login({ setIsLoggedIn }) {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch("https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/login", {
+            const response = await fetch("http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -90,8 +90,9 @@ function Login({ setIsLoggedIn }) {
 
     const handleSignUp = async (e) => {
         e.preventDefault();
+        console.log(JSON.stringify({ username, email, password, role: "user" }));
         try {
-            const response = await fetch("https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/signup", {
+            const response = await fetch("http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
