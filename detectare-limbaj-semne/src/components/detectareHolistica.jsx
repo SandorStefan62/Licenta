@@ -226,6 +226,9 @@ function DetectareHolistica() {
             if (holisticRef.current) {
                 holisticRef.current.close()
             }
+            if (model) {
+                model.dispose();
+            }
         }
     }, [modelLoaded]);
 
