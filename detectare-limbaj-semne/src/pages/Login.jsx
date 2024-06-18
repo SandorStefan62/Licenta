@@ -2,6 +2,8 @@ import React, { useState, useRef, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion"
+import { auth } from "../firebase.config";
+import { sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithRedirect, signOut } from "firebase/auth";
 
 //All the svg files
 import User from "../assets/user.svg";
@@ -60,6 +62,8 @@ function Login({ setIsLoggedIn }) {
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [action, setAction] = useState("Sign Up");
+    const [resetEmail, setResetEmail] = useState("");
+    const [showResetPassword, setShowResetPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -75,16 +79,23 @@ function Login({ setIsLoggedIn }) {
 
             const data = await response.json();
             if (response.ok) {
-                const token = data.token;
-                localStorage.setItem("token", token);
-                setIsLoggedIn(true);
-                navigate("/");
+                const userCredential = await signInWithEmailAndPassword(auth, data.email, password);
+                const user = userCredential.user;
+                if (user.emailVerified) {
+                    const token = await user.getIdToken();
+                    localStorage.setItem("token", token);
+                    setIsLoggedIn(true);
+                    clearFields();
+                    navigate("/");
+                } else {
+                    alert("Logarea a eșuat: email-ul nu a fost verificat încă.");
+                }
             } else {
-                alert("Login failed: " + data.error);
+                alert("Logare eșuată: " + data.error);
             }
         } catch (error) {
-            console.error("Error during login: ", error);
-            alert("Error during login. Please try again.");
+            console.error("Eroare la logare: ", error);
+            alert("Credențiale invalide. Vă rugăm să incercați din nou.");
         }
     }
 
@@ -101,13 +112,29 @@ function Login({ setIsLoggedIn }) {
 
             const data = await response.json();
             if (response.ok) {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                await sendEmailVerification(userCredential.user);
                 setAction("Login");
-                alert("Registration successful! Please log in.");
+                alert("Înregistrarea a fost executată cu succes. Vă rugăm să verificați email-ul.");
+                await signOut(auth);
+                setAction("Login");
             } else {
-                alert("Registration failed: " + data.message);
+                alert("Înregistrare eșuată: " + data.message);
             }
         } catch (error) {
             console.error("Error during registration: ", error);
+        }
+    }
+
+    const handleResetPassword = async (e) => {
+        e.preventDefault();
+        try {
+            await sendPasswordResetEmail(auth, resetEmail);
+            alert("Email-ul pentru schimbarea parolei a fost trimis!");
+            setShowResetPassword(false);
+        } catch (error) {
+            console.error("Eroare la schimbarea parolei: ", error);
+            alert("Failed to send password reset email.");
         }
     }
 
@@ -163,7 +190,7 @@ function Login({ setIsLoggedIn }) {
                                         <img src={User} alt="User" />
                                         <input
                                             type="text"
-                                            placeholder="Enter Username"
+                                            placeholder="Introduceți username-ul"
                                             value={username}
                                             onChange={(e) => setUsername(e.target.value)}
                                         />
@@ -179,7 +206,7 @@ function Login({ setIsLoggedIn }) {
                                         <img src={Letter} alt="Email" />
                                         <input
                                             type="email"
-                                            placeholder="Enter Email"
+                                            placeholder="Introduceți email-ul"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                         />
@@ -195,7 +222,7 @@ function Login({ setIsLoggedIn }) {
                                         <img src={Lock} alt="Password" />
                                         <input
                                             type="password"
-                                            placeholder="Enter Password"
+                                            placeholder="Introduceți parola"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                         />
@@ -214,7 +241,7 @@ function Login({ setIsLoggedIn }) {
                                         <img src={User} alt="User" />
                                         <input
                                             type="text"
-                                            placeholder="Enter Username or Email"
+                                            placeholder="Introduceți username-ul sau email-ul"
                                             value={identifier}
                                             onChange={(e) => setIdentifier(e.target.value)}
                                         />
@@ -230,7 +257,7 @@ function Login({ setIsLoggedIn }) {
                                         <img src={Lock} alt="Password" />
                                         <input
                                             type="password"
-                                            placeholder="Enter Password"
+                                            placeholder="Introduceți parola"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                         />
@@ -239,8 +266,8 @@ function Login({ setIsLoggedIn }) {
                             )}
                         </AnimatePresence>
                     </div>
-                    <div className="flex flex-col items-center">
-                        <div className="w-80 mt-1.5 text-xl text-right cursor-pointer">Forgot Password?</div>
+                    {action === "Login" && <div className="w-80 mt-1.5 ml-24 text-xl text-right cursor-pointer" onClick={() => setShowResetPassword(true)}>Ați uitat parola?</div>}
+                    <div className="flex flex-col items-center pt-4">
                         <ActionContainer>
                             <motion.button
                                 whileHover={{ scale: [null, 1.3, 1.2] }}
@@ -249,7 +276,7 @@ function Login({ setIsLoggedIn }) {
                                 style={(action === "Sign Up" ? {} : { color: "rgba(4, 110, 143, 0.3)", backgroundColor: "var(--tertiary-color)" })}
                                 onClick={() => { setAction("Sign Up"); clearFields() }}
                             >
-                                Sign Up
+                                Înregistrare
                             </motion.button>
                             <motion.button
                                 whileHover={{ scale: [null, 1.3, 1.2] }}
@@ -258,13 +285,67 @@ function Login({ setIsLoggedIn }) {
                                 style={(action === "Login" ? {} : { color: "rgba(4, 110, 143, 0.3)", backgroundColor: "var(--tertiary-color)" })}
                                 onClick={() => { setAction("Login"); clearFields() }}
                             >
-                                Login
+                                Logare
                             </motion.button>
                         </ActionContainer>
-                        <button type="submit">Submit</button>
+                        <button type="submit">Trimiteți</button>
                     </div>
                 </motion.div>
             </form>
+            <AnimatePresence>
+                {showResetPassword && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="w-full h-full fixed top-0 left-0 flex justify-center items-center bg-black bg-opacity-50"
+                    >
+                        <motion.div
+                            initial={{ opacity: 0.1, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: [null, 1.02, 1] }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.2 }}
+                            className="w-1/3 bg-primary-color p-4 rounded-lg"
+                        >
+                            <h2 className="text-2xl mb-4">Schimbați parola</h2>
+                            <form className="flex flex-col items-center" onSubmit={handleResetPassword}>
+                                <div className="w-7/10 flex justify-center">
+                                    <Input>
+                                        <img src={Letter} alt="Email" />
+                                        <input
+                                            type="email"
+                                            placeholder="Introduceți email-ul"
+                                            value={resetEmail}
+                                            onChange={(e) => setResetEmail(e.target.value)}
+                                            required
+                                        />
+                                    </Input>
+                                </div>
+                                <div className="flex justify-between w-9/10 mt-4">
+                                    <motion.button
+                                        type="submit"
+                                        className="flex justify-center items-center w-32 h-12 bg-secondary-color rounded-3xl text-white font-bold text-sm"
+                                        whileHover={{ scale: [null, 1.2, 1.1] }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        Trimiteți email pentru resetare
+                                    </motion.button>
+                                    <motion.button
+                                        type="button"
+                                        className="flex justify-center items-center w-24 h-12 bg-tertiary-color rounded-3xl text-white font-bold text-sm"
+                                        whileHover={{ scale: [null, 1.2, 1.1] }}
+                                        transition={{ duration: 0.2 }}
+                                        onClick={() => setShowResetPassword(false)}
+                                    >
+                                        Anulați
+                                    </motion.button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div >
     )
 }
