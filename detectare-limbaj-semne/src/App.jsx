@@ -25,6 +25,66 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    role: ""
+  })
+
+  const fetchUserData = async (token) => {
+    try {
+      if (!token) {
+        throw new Error("Token not found.");
+      } else {
+        const decodedToken = jwtDecode(token);
+        const userId = decodedToken.id;
+        const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${userId}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          if (!data.userData.firstName && !data.userData.lastName) {
+            setUser({
+              firstName: "",
+              lastName: "",
+              username: data.userData.username,
+              email: data.userData.email,
+              role: data.userData.role
+            });
+          } else if (!data.userData.firstName) {
+            setUser({
+              firstName: "",
+              lastName: data.userData.lastName,
+              username: data.userData.username,
+              email: data.userData.email,
+              role: data.userData.role
+            });
+          } else if (!data.userData.lastName) {
+            setUser({
+              firstName: data.userData.firstName,
+              lastName: "",
+              username: data.userData.username,
+              email: data.userData.email,
+              role: data.userData.role
+            });
+          } else {
+            setUser({
+              firstName: data.userData.firstName,
+              lastName: data.userData.lastName,
+              username: data.userData.username,
+              email: data.userData.email,
+              role: data.userData.role
+            });
+          }
+        } else {
+          console.error("Failed to fetch user data: ", data.error);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user: ", error);
+    }
+  }
 
   const verifyToken = async (token) => {
     try {
@@ -60,11 +120,11 @@ function App() {
     const token = localStorage.getItem("token");
     if (token && location.pathname !== "/Login") {
       verifyToken(token);
+      fetchUserData(token);
     } else {
       setIsAdmin(false);
       setIsLoading(false);
     }
-    console.log("app isAdmin:", isAdmin);
   }, [isLoggedIn]);
 
   if (isLoading) {
@@ -73,7 +133,7 @@ function App() {
 
   return (
     <>
-      {!hideSidebarRoutes.includes(location.pathname) && <Sidebar isAdmin={isAdmin} setIsLoggedIn={setIsLoggedIn} />}
+      {!hideSidebarRoutes.includes(location.pathname) && <Sidebar isAdmin={isAdmin} setIsLoggedIn={setIsLoggedIn} firstName={user.firstName} lastName={user.lastName} />}
       <Pages className="w-screen h-screen flex justify-center items-center">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
@@ -81,10 +141,8 @@ function App() {
             <Route exact path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route exact path="/About" element={<ProtectedRoute><About /></ProtectedRoute>} />
             <Route exact path="/Dictionary" element={<ProtectedRoute isAdmin={isAdmin} ><Dictionary /></ProtectedRoute>} />
-            <Route exact path="/Detection" element={<ProtectedRoute><Detection /></ProtectedRoute>} />
             <Route exact path="/Practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
             <Route exact path="/UserProfile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-            <Route exact path="/Settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             {isAdmin ? (
               <Route exact path="/Admin" element={<Admin />} />
             ) : (
