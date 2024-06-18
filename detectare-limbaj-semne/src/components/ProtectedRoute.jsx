@@ -22,6 +22,7 @@ function ProtectedRoute({ children }) {
             }
         } catch (error) {
             console.error("Error verifying token: ", error);
+            alert("Error: " + error);
             setIsAuthenticated(false);
         } finally {
             setIsLoading(false);
