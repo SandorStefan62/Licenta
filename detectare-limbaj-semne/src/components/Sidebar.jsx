@@ -89,8 +89,8 @@ img {
 `;
 
 const Profile = styled.div`
-width: ${(props) => (props.$clicked === "true" ? "14rem" : "3rem")};
-margin-left: ${(props) => (props.$clicked === "true" ? "9rem" : "0")};
+width: ${(props) => (props.$clicked === "true" ? "24rem" : "3rem")};
+margin-left: ${(props) => (props.$clicked === "true" ? "20rem" : "0")};
 transition: all 0.3s ease;
 
 img {
@@ -142,7 +142,7 @@ margin-left: ${(props) => (props.$clicked ? "1.5rem" : "0")};
 transition: all 0.3s ease;
 `;
 
-const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
+const Sidebar = ({ isAdmin, setIsLoggedIn, firstName, lastName }) => {
   const navigate = useNavigate();
   const [click, setClick] = useState(false);
   const [profileClick, setProfileClick] = useState(false);
@@ -156,8 +156,6 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
       navigate("/Login");
     })
   }
-
-
 
   return (
     <Container className="fixed z-10  ">
@@ -197,13 +195,6 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
           </Item>
           <Item
             onClick={() => setClick(false)}
-            to="/Detection"
-          >
-            <img src={Camera} alt="Camera" />
-            <Text $clicked={click.toString()}>Detectarea Gesticulării</Text>
-          </Item>
-          <Item
-            onClick={() => setClick(false)}
             to="/Practice"
           >
             <img src={Notebook} alt="Practice" />
@@ -227,20 +218,13 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
             <img src={User} alt="User Profile" />
             <Text $clicked={click.toString()}>Profil</Text>
           </Item>
-          <Item
-            onClick={() => setClick(false)}
-            to="/Settings"
-          >
-            <img src={Settings} alt="Settings" />
-            <Text $clicked={click.toString()}>Setări</Text>
-          </Item>
         </SlickBar>
         <Profile className="h-12 py-2 px-4 rounded-[20px] flex items-center justify-center bg-primary-color text-white" $clicked={profileClick.toString()}>
           <img onClick={() => handleProfileClick()} src={UserImage} alt="Profile" />
-          <Details className="justify-space-between items-center" $clicked={profileClick.toString()}>
+          <Details className="w-full flex justify-between items-center" $clicked={profileClick.toString()}>
             <Name className="px-6 flex flex-col justify-center items-center">
-              <h4>John Doe</h4>
-              <a href="/#">View&nbsp;profile</a>
+              <h4>{`${firstName} ${lastName}`}</h4>
+              <a href="/UserProfile">View&nbsp;profile</a>
             </Name>
             <Logout className="border-none w-8 h-8 bg-transparent" onClick={() => { handleLogout() }}>
               <img className="w-full h-auto" src={Power} alt="Logout" />
