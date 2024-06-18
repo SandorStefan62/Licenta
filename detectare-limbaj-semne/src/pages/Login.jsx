@@ -115,11 +115,12 @@ function Login({ setIsLoggedIn }) {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 await sendEmailVerification(userCredential.user);
                 setAction("Login");
+                clearFields();
                 alert("Înregistrarea a fost executată cu succes. Vă rugăm să verificați email-ul.");
                 await signOut(auth);
                 setAction("Login");
             } else {
-                alert("Înregistrare eșuată: " + data.message);
+                alert("Înregistrare eșuată: " + data.error);
             }
         } catch (error) {
             console.error("Error during registration: ", error);
