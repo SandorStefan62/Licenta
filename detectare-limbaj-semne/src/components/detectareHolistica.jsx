@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState, act } from "react"
 import {
     Holistic,
-    POSE_LANDMARKS,
     POSE_LANDMARKS_LEFT,
     POSE_LANDMARKS_RIGHT,
     HAND_CONNECTIONS,
@@ -12,7 +11,6 @@ import {
     FACEMESH_LEFT_EYEBROW,
     FACEMESH_FACE_OVAL,
     FACEMESH_LIPS,
-    POSE_CONNECTIONS
 } from "@mediapipe/holistic"
 import * as Camera from "@mediapipe/camera_utils"
 import * as drawingUtils from "@mediapipe/drawing_utils"
@@ -28,7 +26,6 @@ function DetectareHolistica() {
 
     //model variables
     const [model, setModel] = useState(null);
-    const [predictions, setPredictions] = useState([]);
     const [sentence, setSentence] = useState([]);
     const [frames, setFrames] = useState([]);
     const actions = ["buna ziua", "multumesc", "salut"];
@@ -39,7 +36,6 @@ function DetectareHolistica() {
     const loadModel = async () => {
         try {
             const loadedModel = await tf.loadLayersModel('../../cuvintejs/model.json');
-            console.log("Successfully loaded model: ", loadedModel);
             setModel(loadedModel);
             setModelLoaded(true);
         } catch (error) {
