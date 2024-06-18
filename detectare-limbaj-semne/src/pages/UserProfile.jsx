@@ -3,7 +3,7 @@ import Motion from "../components/Motion";
 import { AnimatePresence, motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode"
 
-import Logo from "../assets/placeholder.jpg"
+import Avatar from "../assets/placeholder.jpg"
 
 function UserProfileComponent() {
     const [isEditingFirstName, setIsEditingFirstName] = useState(false);
@@ -131,7 +131,7 @@ function UserProfileComponent() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    if (!response.firstName && !response.lastName) {
+                    if (!data.userData.firstName && !data.userData.lastName) {
                         setUser({
                             firstName: "",
                             lastName: "",
@@ -139,7 +139,7 @@ function UserProfileComponent() {
                             email: data.userData.email,
                             role: data.userData.role
                         });
-                    } else if (!response.firstName) {
+                    } else if (!data.userData.firstName) {
                         setUser({
                             firstName: "",
                             lastName: data.userData.lastName,
@@ -147,7 +147,7 @@ function UserProfileComponent() {
                             email: data.userData.email,
                             role: data.userData.role
                         });
-                    } else if (!response.lastName) {
+                    } else if (!data.userData.lastName) {
                         setUser({
                             firstName: data.userData.firstName,
                             lastName: "",
@@ -195,7 +195,7 @@ function UserProfileComponent() {
                     transition={{ duration: 0.2, delay: 0.5 }}
                     className="w-56 h-56 mt-6 bg-[#89abf5] rounded-full flex justify-center items-center"
                 >
-                    <img className="h-9/10 w-9/10 rounded-full" src={Logo} alt="Avatar" />
+                    <img className="h-9/10 w-9/10 rounded-full" src={Avatar} alt="Avatar" />
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -212,7 +212,7 @@ function UserProfileComponent() {
                     onAnimationComplete={() => setInitialAnimationComplete(true)}
                     className="text-center"
                 >
-                    <h1 className="text-2xl font-bold mt-4">Current Rank: Newbie</h1>
+                    <h1 className="text-2xl font-bold mt-4">Rangul curent: Newbie</h1>
                 </motion.div>
             </motion.div>
             <motion.div
@@ -228,7 +228,7 @@ function UserProfileComponent() {
                     className="w-9/10 h-1/10 my-4 bg-[#89abf5] rounded-2xl flex items-center justify-between"
                 >
                     <h1 className="text-2xl font-bold ml-4">
-                        First Name:&nbsp;
+                        Prenume:&nbsp;
                         <motion.input
                             initial={{ backgroundColor: isEditingFirstName ? "#89abf5" : "var(--tertiary-color)", paddingLeft: isEditingFirstName ? "0" : "0.5rem" }}
                             animate={{ backgroundColor: isEditingFirstName ? "var(--tertiary-color)" : "#89abf5", paddingLeft: isEditingFirstName ? "0.5rem" : "0" }}
@@ -253,10 +253,9 @@ function UserProfileComponent() {
                                     className="w-2/10 h-12 rounded-xl ml-32 text-xl font-bold bg-secondary-color"
                                     onClick={() => submitEditFirstName()}
                                 >
-                                    Change First Name
+                                    Schimbați prenumele
                                 </motion.button>
                             )
-
                         }
                     </AnimatePresence>
                     <motion.button
@@ -267,7 +266,7 @@ function UserProfileComponent() {
                         className="w-2/10 h-12 rounded-xl text-xl font-bold mr-4 bg-secondary-color"
                         onClick={() => handleEditFirstName()}
                     >
-                        {isEditingFirstName ? "Cancel" : "Change First Name"}
+                        {isEditingFirstName ? "Anulați" : "Schimbați prenumele"}
                     </motion.button>
                 </motion.div>
                 <motion.div
@@ -277,7 +276,7 @@ function UserProfileComponent() {
                     className="w-9/10 h-1/10 my-2 bg-[#89abf5] rounded-2xl flex items-center justify-between"
                 >
                     <h1 className="text-2xl font-bold ml-4">
-                        Last Name:&nbsp;
+                        Nume:&nbsp;
                         <motion.input
                             initial={{ backgroundColor: isEditingLastName ? "#89abf5" : "var(--tertiary-color)", paddingLeft: isEditingLastName ? 0 : "0.5rem" }}
                             animate={{ backgroundColor: isEditingLastName ? "var(--tertiary-color)" : "#89abf5", paddingLeft: isEditingLastName ? "0.5rem" : 0 }}
@@ -301,10 +300,9 @@ function UserProfileComponent() {
                                     className="w-2/10 h-12 rounded-xl ml-32 text-xl font-bold bg-secondary-color"
                                     onClick={() => submitEditLastName()}
                                 >
-                                    Change Last Name
+                                    Schimbați numele
                                 </motion.button>
                             )
-
                         }
                     </AnimatePresence>
                     <motion.button
@@ -315,7 +313,7 @@ function UserProfileComponent() {
                         className="w-2/10 h-12 rounded-xl text-xl font-bold mr-4 bg-secondary-color"
                         onClick={() => handleEditLastName()}
                     >
-                        {isEditingLastName ? "Cancel" : "Change Last Name"}
+                        {isEditingLastName ? "Anulați" : "Schimbați numele"}
                     </motion.button>
                 </motion.div>
                 <motion.div
@@ -349,10 +347,9 @@ function UserProfileComponent() {
                                     className="w-2/10 h-12 rounded-xl ml-32 text-xl font-bold bg-secondary-color"
                                     onClick={() => submitEditUsername()}
                                 >
-                                    Change Username
+                                    Schimbați username-ul
                                 </motion.button>
                             )
-
                         }
                     </AnimatePresence>
                     <motion.button
@@ -363,7 +360,7 @@ function UserProfileComponent() {
                         className="w-2/10 h-12 rounded-xl text-xl font-bold mr-4 bg-secondary-color"
                         onClick={() => handleEditUsername()}
                     >
-                        {isEditingUsername ? "Cancel" : "Change Username"}
+                        {isEditingUsername ? "Anulați" : "Schimbați username-ul"}
                     </motion.button>
                 </motion.div>
                 <motion.div
@@ -380,7 +377,7 @@ function UserProfileComponent() {
                     transition={{ duration: 0.2, delay: 0.9 }}
                     className="w-9/10 h-1/10 my-4 bg-[#89abf5] rounded-2xl flex items-center justify-between"
                 >
-                    <h1 className="text-2xl font-bold ml-4">Role: {user.role}</h1>
+                    <h1 className="text-2xl font-bold ml-4">Rol: {user.role}</h1>
                 </motion.div>
             </motion.div>
         </div>
