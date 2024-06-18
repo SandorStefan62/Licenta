@@ -64,6 +64,7 @@ function App() {
       setIsAdmin(false);
       setIsLoading(false);
     }
+    console.log("app isAdmin:", isAdmin);
   }, [isLoggedIn]);
 
   if (isLoading) {
@@ -79,7 +80,7 @@ function App() {
             <Route exact path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route exact path="/Login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route exact path="/About" element={<ProtectedRoute><About /></ProtectedRoute>} />
-            <Route exact path="/Dictionary" element={<ProtectedRoute><Dictionary /></ProtectedRoute>} />
+            <Route exact path="/Dictionary" element={<ProtectedRoute isAdmin={isAdmin} ><Dictionary /></ProtectedRoute>} />
             <Route exact path="/Detection" element={<ProtectedRoute><Detection /></ProtectedRoute>} />
             <Route exact path="/Practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
             <Route exact path="/UserProfile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />

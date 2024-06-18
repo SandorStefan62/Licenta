@@ -241,7 +241,7 @@ function Login({ setIsLoggedIn }) {
                                         <img src={User} alt="User" />
                                         <input
                                             type="text"
-                                            placeholder="Introduceți username-ul sau email-ul"
+                                            placeholder="Introduceți username sau email"
                                             value={identifier}
                                             onChange={(e) => setIdentifier(e.target.value)}
                                         />

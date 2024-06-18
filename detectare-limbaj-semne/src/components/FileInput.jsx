@@ -36,7 +36,13 @@ function FileInput() {
         }
 
         const storageRef = ref(storage, `videos/${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
+        const metadata = {
+            customMetadata: {
+                description: ""
+            }
+        }
+
+        const uploadTask = uploadBytesResumable(storageRef, file, metadata);
 
         uploadTask.on('state_changed',
             (snapshot) => {
