@@ -1,7 +1,7 @@
 import { motion } from "framer-motion"
 
 function Motion(Component) {
-    return function HOC() {
+    return function HOC(props) {
         return (
             <div className="ml-14 w-full h-full flex justify-center items-center">
                 <motion.div
@@ -10,7 +10,7 @@ function Motion(Component) {
                     transition={{ duration: 0.2 }}
                     className="w-9/10 h-9/10 rounded-[30px] relative flex flex-col overflow-hidden overflow-y-auto no-scrollbar bg-background-color-lower-alpha"
                 >
-                    <Component />
+                    <Component {...props} />
                 </motion.div>
             </div>
         )

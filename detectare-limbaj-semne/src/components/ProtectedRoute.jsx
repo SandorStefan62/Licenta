@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, ...rest }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -44,7 +44,7 @@ function ProtectedRoute({ children }) {
         return (<></>);
     }
 
-    return isAuthenticated ? children : <Navigate to="/Login" />;
+    return isAuthenticated ? React.cloneElement(children, { ...rest }) : <Navigate to="/Login" />;
 }
 
 export default ProtectedRoute;
