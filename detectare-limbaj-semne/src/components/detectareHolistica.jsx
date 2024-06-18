@@ -16,7 +16,7 @@ import * as Camera from "@mediapipe/camera_utils"
 import * as drawingUtils from "@mediapipe/drawing_utils"
 import * as tf from "@tensorflow/tfjs"
 
-function DetectareHolistica() {
+function DetectareHolistica({ onPredictionChange }) {
     const videoRef = useRef(null);
     const hiddenCanvasRef = useRef(null);
 
@@ -26,9 +26,9 @@ function DetectareHolistica() {
 
     //model variables
     const [model, setModel] = useState(null);
-    const [sentence, setSentence] = useState([]);
     const [frames, setFrames] = useState([]);
-    const actions = ["buna ziua", "multumesc", "salut"];
+    const [prediction, setPrediction] = useState('');
+    const actions = ["Bună ziua", "Mulțumesc", "Salut"];
     const treshold = 0.5;
 
     const [modelLoaded, setModelLoaded] = useState(false);
@@ -147,17 +147,8 @@ function DetectareHolistica() {
                     if (prediction) {
                         const maxPrediction = tf.tensor(prediction).argMax().dataSync()[0];
                         if (prediction[maxPrediction] > treshold) {
-                            // console.log(actions[maxPrediction] + " " + Date(Date.now()));
-                            setSentence(prevSentence => {
-                                const updatedSentence = [...prevSentence];
-                                if (updatedSentence.length === 0 || actions[maxPrediction] !== updatedSentence[updatedSentence.length - 1]) {
-                                    updatedSentence.push(actions[maxPrediction]);
-                                }
-                                if (updatedSentence.length > 5) {
-                                    updatedSentence.shift();
-                                }
-                                return updatedSentence;
-                            })
+                            const predictedAction = actions[maxPrediction];
+                            setPrediction(predictedAction);
                         }
                     }
                 }
@@ -170,6 +161,12 @@ function DetectareHolistica() {
     }
 
     useEffect(() => {
+        if (prediction) {
+            onPredictionChange(prediction);
+        }
+    }, [prediction, onPredictionChange])
+
+    useEffect(() => {
         loadModel();
 
         if (modelLoaded) {
@@ -180,7 +177,7 @@ function DetectareHolistica() {
 
                 holistic.setOptions({
                     modelComplexity: 1,
-                    selfieMode: true,
+                    selfieMode: false,
                     smoothLandmarks: true,
                     enableSegmentation: true,
                     smoothSegmentation: true,
@@ -230,9 +227,8 @@ function DetectareHolistica() {
 
     return (
         <div style={{ width: '960px', height: '540px' }}>
-            <video ref={videoRef} style={{ display: 'none' }}></video>
-            <canvas ref={hiddenCanvasRef} width="1920" height="1080" style={{ maxWidth: "100%" }}></canvas>
-            <div>{sentence.join(' ')}</div>
+            <video className="rounded-xl" ref={videoRef} style={{ display: 'none' }}></video>
+            <canvas className="rounded-3xl" ref={hiddenCanvasRef} width="1920" height="1080" style={{ maxWidth: "100%" }}></canvas>
         </div>
     )
 }
