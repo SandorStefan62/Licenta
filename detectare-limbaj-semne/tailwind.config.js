@@ -50,6 +50,11 @@ export default {
         '7/10': '70%',
         '8/10': '80%',
         '9/10': '90%',
+      },
+      screens: {
+        "tall": {
+          'raw': '(min-height: 769px)',
+        }
       }
     },
   },

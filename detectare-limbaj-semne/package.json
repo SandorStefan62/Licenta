@@ -15,10 +15,12 @@
     "@mediapipe/drawing_utils": "^0.3.1675466124",
     "@mediapipe/holistic": "^0.5.1675471629",
     "@tensorflow/tfjs": "^4.20.0",
+    "firebase": "^10.12.2",
     "framer-motion": "^11.2.10",
     "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-player": "^2.16.0",
     "react-router-dom": "^6.23.1",
     "styled-components": "^6.1.11"
   },
