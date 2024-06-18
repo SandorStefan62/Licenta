@@ -15,6 +15,8 @@ import User from "../assets/user.svg";
 import Settings from "../assets/settings.svg";
 import UserImage from "../assets/user-image.svg";
 import Logo from "../assets/logo.png";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase.config";
 
 const Container = styled.div`
 .active {
@@ -148,9 +150,11 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
   const handleClick = () => setClick((prevClick) => !prevClick)
   const handleProfileClick = () => setProfileClick((prevProfileClick) => !prevProfileClick);
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false)
-    navigate("/Login");
+    signOut(auth).then(() => {
+      localStorage.removeItem("token");
+      setIsLoggedIn(false)
+      navigate("/Login");
+    })
   }
 
 
@@ -175,35 +179,35 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
             to="/"
           >
             <img src={Home} alt="Home" />
-            <Text $clicked={click.toString()}>Home</Text>
+            <Text $clicked={click.toString()}>Acasă</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/About"
           >
             <img src={About} alt="About" />
-            <Text $clicked={click.toString()}>About Us</Text>
+            <Text $clicked={click.toString()}>Despre Noi</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/Dictionary"
           >
             <img src={Book} alt="Dictionary" />
-            <Text $clicked={click.toString()}>Sign language Dictionary</Text>
+            <Text $clicked={click.toString()}>Dicționar Mimico Gestual</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/Detection"
           >
             <img src={Camera} alt="Camera" />
-            <Text $clicked={click.toString()}>Sign Language Detection</Text>
+            <Text $clicked={click.toString()}>Detectarea Gesticulării</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/Practice"
           >
             <img src={Notebook} alt="Practice" />
-            <Text $clicked={click.toString()}>Practice</Text>
+            <Text $clicked={click.toString()}>Exersați</Text>
           </Item>
           {isAdmin ? (
             <Item
@@ -211,7 +215,7 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
               to="/Admin"
             >
               <img src={Administrator} alt="Admin" />
-              <Text $clicked={click.toString()}>Administrator Dashboard</Text>
+              <Text $clicked={click.toString()}>Panou Administrativ</Text>
             </Item>
           ) : (
             <></>
@@ -221,14 +225,14 @@ const Sidebar = ({ isAdmin, setIsLoggedIn }) => {
             to="/UserProfile"
           >
             <img src={User} alt="User Profile" />
-            <Text $clicked={click.toString()}>User Profile</Text>
+            <Text $clicked={click.toString()}>Profil</Text>
           </Item>
           <Item
             onClick={() => setClick(false)}
             to="/Settings"
           >
             <img src={Settings} alt="Settings" />
-            <Text $clicked={click.toString()}>Settings</Text>
+            <Text $clicked={click.toString()}>Setări</Text>
           </Item>
         </SlickBar>
         <Profile className="h-12 py-2 px-4 rounded-[20px] flex items-center justify-center bg-primary-color text-white" $clicked={profileClick.toString()}>
