@@ -2,22 +2,26 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const express = require("express");
 require("dotenv").config();
-const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
+const jwtDecode = require('jwt-decode');
 
 const jwtSecret = process.env.JWT_SECRET;
 
-admin.initializeApp();
+admin.initializeApp({
+    serviceAccountId: process.env.SERVICE_ACCOUNT_ID
+});
 
+const auth = admin.auth();
 const db = admin.firestore();
+const storage = admin.storage();
 const app = express();
 
 app.use(cors({
     origin: 'http://localhost:5173'
 }));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
@@ -26,130 +30,93 @@ app.get("/", (req, res) => {
 //user signup
 app.post("/signup", async (req, res) => {
     const { username, email, password, role } = req.body;
+    if (!username || !email || !password || !role) {
+        return res.status(400).send({ error: 'Missing required fields' });
+    }
 
-    if (!username || !email || !password) {
-        return res
-            .status(400)
-            .send({ error: "Username, email and password are required." });
-    } else if (!role || (role !== "admin" && role !== "user")) {
-        return res.status(400).send({ error: "Invalid role." });
-    } else {
-        try {
-            const userSnapshot = await db
-                .collection("users")
-                .where("email", "==", email)
-                .get();
-            if (!userSnapshot.empty) {
-                return res
-                    .status(400)
-                    .send({ error: "User already exists." });
-            }
-
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            const userRef = db.collection("users").doc();
-            await userRef.set({
-                username,
-                email,
-                password: hashedPassword,
-                role,
-                firstName: "",
-                lastName: "",
-                progress: "",
-            });
-
-            return res
-                .status(201)
-                .send({ message: "User created successfully." });
-        } catch (error) {
-            console.error("Error creating user: ", error);
-            return res
-                .status(500)
-                .send({ error: "Internal Server Error" });
+    try {
+        const usernameSnapshot = await db.collection('useres').where('username', "==", username).get();
+        if (!usernameSnapshot.empty) {
+            return res.status(400).send({ message: 'Username is already taken' });
         }
+
+        const emailSnapshot = await db.collection('users').where('email', "==", email).get();
+        if (!emailSnapshot.empty) {
+            return res.status(400).send({ message: 'Email is already in use' });
+        }
+
+        const userRecord = await admin.auth().createUser({
+            email: email,
+            password: password,
+            displayName: username
+        });
+
+        const userRef = db.collection('users').doc();
+        await userRef.set({
+            uid: userRecord.uid,
+            username: username,
+            email: email,
+            role: role,
+            firstName: "",
+            lastName: "",
+            progress: ""
+        });
+
+        res.status(201).send({ message: 'User created successfully', uid: userRecord.uid });
+    } catch (error) {
+        console.error('Error creating new user:', error);
+        res.status(500).send({ error: 'Error creating new user' });
     }
 });
 
-//user login
 app.post("/login", async (req, res) => {
-    const { identifier, password } = req.body;
-
-    if (!identifier || !password) {
-        return res
-            .status(400)
-            .send({ error: "Identifier (username/email) and password are required." });
-    } else {
-        try {
-            const userSnapshot = await db
-                .collection("users")
-                .where("email", "==", identifier)
-                .get();
-            let userDoc;
-            if (!userSnapshot.empty) {
-                userDoc = userSnapshot.docs[0];
-            } else {
-                const userSnapshotByUsername = await db
-                    .collection("users")
-                    .where("username", "==", identifier)
-                    .get();
-                if (userSnapshotByUsername.empty) {
-                    return res.status(400).send({ error: "Invalid Username/Email." });
-                }
-                userDoc = userSnapshotByUsername.docs[0];
-            }
-
-
-            const userData = userDoc.data();
-            console.log(userDoc.id);
-
-            const passwordMatch = await bcrypt.compare(password, userData.password);
-            if (!passwordMatch) {
-                return res
-                    .status(400)
-                    .send({ error: "Invalid Password." });
-            }
-
-            const issuedAt = new Date();
-            const expiresAt = new Date();
-            expiresAt.setHours(expiresAt.getHours() + 1);
-
-            const token = jwt.sign({
-                id: userDoc.id,
-                username: userData.username,
-                role: userData.role,
-                iat: Math.floor(issuedAt.getTime() / 1000),
-                exp: Math.floor(expiresAt.getTime() / 1000),
-            }, jwtSecret);
-
-            return res.status(200).send({
-                message: "Login successful.",
-                token: token,
-            });
-        } catch (error) {
-            console.error("error loggin in user: ", error);
-            return res
-                .status(500)
-                .send({ error: "Internal Server Error" });
-        }
+    const { identifier } = req.body;
+    if (!identifier) {
+        return res.status(400).send({ error: "Missing credentials" });
     }
-});
+
+    try {
+        let userDoc;
+        const userSnapshot = await db.collection("users").where("email", "==", identifier).get();
+        if (!userSnapshot.empty) {
+            userDoc = userSnapshot.docs[0];
+        } else {
+            const userSnapshotByUsername = await db.collection("users").where("username", "==", identifier).get();
+            if (userSnapshotByUsername.empty) {
+                return res.status(400).send({ error: "Invalid Username/Email." });
+            }
+            userDoc = userSnapshotByUsername.docs[0];
+        }
+        const userData = userDoc.data();
+        await auth.setCustomUserClaims(userData.uid, { id: userDoc.id, role: userData.role });
+        return res.status(200).send({ email: userData.email, message: "Successful" });
+    } catch (error) {
+        console.error('Error logging in user:', error);
+        res.status(500).send({ error: 'Error logging in user' });
+    }
+})
 
 //verify user token 
-app.post('/verify-token', (req, res, next) => {
+app.post('/verify-token', async (req, res, next) => {
     const { token } = req.body;
 
     if (!token) {
         return res.status(400).send({ error: "Token is required." });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
-        if (error) {
-            console.error('Error verifying token: ', error);
-            return res.status(401).send({ error: "Invalid token." });
+    try {
+        const decodedToken = await auth.verifyIdToken(token);
+        return res.status(200).send({ message: "Success", decodedToken });
+    } catch (error) {
+        if (error.code === 'auth/id-token-expired') {
+            return res.status(401).send({ error: "Token has expired." });
+        } else if (error.code === 'auth/argument-error') {
+            return res.status(400).send({ error: "Invalid token." });
+        } else {
+            console.error("Error verifying token: ", error);
+            return res.status(500).send({ error: "Internal Server Error." });
         }
-
-        return res.status(200).send({ success: true });
-    });
+    }
 });
 
 //get user by id
@@ -219,5 +186,71 @@ app.patch("/user/:id/username", async (req, res) => {
         return res.status(500).send({ error: "Internal Server Error" });
     }
 });
+
+app.patch("/user/:id", async (req, res) => {
+    const userId = req.params.id;
+    const { username, firstName, lastName, role } = req.body;
+
+    try {
+        const updateData = {};
+        if (username) updateData.username = username;
+        if (firstName) updateData.firstName = firstName;
+        if (lastName) updateData.lastName = lastName;
+        if (role) updateData.role = role;
+
+        const userSnapshot = await db.collection('users').where("uid", "==", userId).get();
+
+        if (userSnapshot.empty) {
+            return res.status(404).send({ error: "User not found" });
+        }
+
+        const userDoc = userSnapshot.docs[0].ref;
+        await userDoc.update(updateData);
+
+        return res.status(200).send({ message: "User updated successfully." });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Failed to update user' });
+    }
+})
+
+app.get('/users', async (req, res) => {
+    try {
+        const usersSnapshot = await db.collection('users').get();
+        const users = [];
+
+        usersSnapshot.forEach((doc) => {
+            users.push({ ...doc.data() });
+        });
+
+        return res.status(200).send(users);
+    } catch (error) {
+        console.error('Error fetching users: ', error);
+        return res.status(500).send({ error: "Internal Server Error" });
+    }
+})
+
+app.delete("/user/:id", async (req, res) => {
+    const userId = req.params.id;
+    console.log(userId);
+
+    try {
+        const userSnapshot = await db.collection('users').where("uid", "==", userId).get();
+
+        if (userSnapshot.empty) {
+            return res.status(404).send({ error: "User not found" });
+        }
+
+        const userDoc = userSnapshot.docs[0].ref;
+        await userDoc.delete();
+
+        await auth.deleteUser(userId);
+
+        res.status(200).json({ message: `User with ID ${userId} deleted successfully.` });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user.' });
+    }
+})
 
 exports.api = functions.region('europe-west1').https.onRequest(app);
