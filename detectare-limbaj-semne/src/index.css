@@ -22,6 +22,22 @@
   --grey: #A4B2BC;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.react-player video {
+  position: relative;
+  left: 0;
+  top: 0;
+  transform: none;
+}
+
 *,
 *::before,
 *::after {
