@@ -15,7 +15,7 @@ const db = admin.firestore();
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5173'
+    origin: ['http://localhost:5173', 'https://sandorstefan62.github.io/']
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
