@@ -4,9 +4,7 @@ const express = require("express");
 require("dotenv").config();
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const jwtDecode = require('jwt-decode');
-
-const jwtSecret = process.env.JWT_SECRET;
+const { FieldValue } = require("firebase-admin/firestore");
 
 admin.initializeApp({
     serviceAccountId: process.env.SERVICE_ACCOUNT_ID
@@ -14,7 +12,6 @@ admin.initializeApp({
 
 const auth = admin.auth();
 const db = admin.firestore();
-const storage = admin.storage();
 const app = express();
 
 app.use(cors({
@@ -32,6 +29,10 @@ app.post("/signup", async (req, res) => {
     const { username, email, password, role } = req.body;
     if (!username || !email || !password || !role) {
         return res.status(400).send({ error: 'Missing required fields' });
+    }
+
+    if (password.length < 6) {
+        return res.status(403).send({ error: "Parola trebuie să aibă cel puțin 6 caractere" });
     }
 
     try {
@@ -59,7 +60,7 @@ app.post("/signup", async (req, res) => {
             role: role,
             firstName: "",
             lastName: "",
-            progress: ""
+            progress: 0
         });
 
         res.status(201).send({ message: 'User created successfully', uid: userRecord.uid });
@@ -187,6 +188,7 @@ app.patch("/user/:id/username", async (req, res) => {
     }
 });
 
+//edits user params by id
 app.patch("/user/:id", async (req, res) => {
     const userId = req.params.id;
     const { username, firstName, lastName, role } = req.body;
@@ -214,6 +216,7 @@ app.patch("/user/:id", async (req, res) => {
     }
 })
 
+//fetches all users from db
 app.get('/users', async (req, res) => {
     try {
         const usersSnapshot = await db.collection('users').get();
@@ -230,6 +233,7 @@ app.get('/users', async (req, res) => {
     }
 })
 
+//deletes a user by id
 app.delete("/user/:id", async (req, res) => {
     const userId = req.params.id;
     console.log(userId);
@@ -250,6 +254,29 @@ app.delete("/user/:id", async (req, res) => {
     } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).json({ error: 'Failed to delete user.' });
+    }
+})
+
+app.patch('/user/:id/progress', async (req, res) => {
+    const userId = req.params.id;
+    console.log(userId);
+
+    try {
+        const userSnapshot = await db.collection('users').where("uid", "==", userId).get();
+        if (userSnapshot.empty) {
+            return res.status(404).send({ error: "User not found" });
+        }
+
+        const userDoc = userSnapshot.docs[0].ref;
+
+        await userDoc.update({
+            progress: FieldValue.increment(1),
+        });
+
+        return res.status(200).send({ message: "User progress updated successfully" });
+    } catch (error) {
+        console.error('Error updating user progress: ', error);
+        return res.status(500).send({ error: "Internal Server Error" });
     }
 })
 
