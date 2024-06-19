@@ -31,6 +31,10 @@
   scrollbar-width: none;
 }
 
+.placeholder-text-xl::placeholder {
+  @apply text-xl;
+}
+
 .react-player video {
   position: relative;
   left: 0;
