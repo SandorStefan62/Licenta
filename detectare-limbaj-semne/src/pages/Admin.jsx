@@ -110,7 +110,7 @@ function DictionaryComponent() {
 
     const fetchAllUsers = async () => {
         try {
-            const response = await fetch("http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/users");
+            const response = await fetch("https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/users");
             const data = await response.json();
             if (response.ok) {
                 const updatedUsers = data.map(user => ({
@@ -136,7 +136,7 @@ function DictionaryComponent() {
             } else {
                 const decodedToken = jwtDecode(token);
                 const userId = decodedToken.id;
-                const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${userId}`, {
+                const response = await fetch(`https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/user/${userId}`, {
                     method: "GET"
                 });
                 const data = await response.json();
@@ -227,7 +227,7 @@ function DictionaryComponent() {
     const submitEditFields = async () => {
         const uid = editingUserId;
         try {
-            const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${uid}`, {
+            const response = await fetch(`https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/user/${uid}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -259,7 +259,7 @@ function DictionaryComponent() {
         const uid = editingUserId;
         console.log(uid);
         try {
-            const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${uid}`, {
+            const response = await fetch(`https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/user/${uid}`, {
                 method: "DELETE"
             });
 

@@ -7,7 +7,7 @@ function ProtectedRoute({ children, ...rest }) {
 
     const verifyToken = async (token) => {
         try {
-            const response = await fetch('http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/verify-token', {
+            const response = await fetch('https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/verify-token', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

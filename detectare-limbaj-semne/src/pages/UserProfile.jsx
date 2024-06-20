@@ -30,7 +30,7 @@ function UserProfileComponent() {
             const decodedToken = jwtDecode(token);
             const userId = decodedToken.id;
 
-            const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${userId}/firstName`, {
+            const response = await fetch(`https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/user/${userId}/firstName`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -63,7 +63,7 @@ function UserProfileComponent() {
             const decodedToken = jwtDecode(token);
             const userId = decodedToken.id;
 
-            const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${userId}/lastName`, {
+            const response = await fetch(`https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/user/${userId}/lastName`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -96,7 +96,7 @@ function UserProfileComponent() {
             const decodedToken = jwtDecode(token);
             const userId = decodedToken.id;
 
-            const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${userId}/username`, {
+            const response = await fetch(`https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/user/${userId}/username`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -127,7 +127,7 @@ function UserProfileComponent() {
             } else {
                 const decodedToken = jwtDecode(token);
                 const userId = decodedToken.id;
-                const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${userId}`);
+                const response = await fetch(`https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/user/${userId}`);
                 const data = await response.json();
 
                 if (response.ok) {

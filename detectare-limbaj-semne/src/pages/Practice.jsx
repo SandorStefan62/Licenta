@@ -13,6 +13,8 @@ function PracticeComponent() {
     const [progressUpdated, setProgressUpdated] = useState(false);
     const [user, setUser] = useState({});
 
+    console.log("practice videoName: ", videoName);
+
     const fetchUserData = async (token) => {
         try {
             if (!token) {
@@ -20,7 +22,7 @@ function PracticeComponent() {
             } else {
                 const decodedToken = jwtDecode(token);
                 const userId = decodedToken.id;
-                const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${userId}`);
+                const response = await fetch(`https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/user/${userId}`);
                 const data = await response.json();
 
                 if (response.ok) {
@@ -86,10 +88,10 @@ function PracticeComponent() {
     const handlePredictionChange = async (predictedAction) => {
         setPrediction(predictedAction);
         const formatedPrediction = removeDiacritics(predcition);
-        if ((formatedPrediction.toLowerCase() === videoName.toLowerCase()) && !progressUpdated) {
+        if ((formatedPrediction.toLowerCase() === videoName.toLowerCase()) && (formatedPrediction !== "" || videoName !== "") && !progressUpdated) {
             setTimeout(async () => {
                 try {
-                    const response = await fetch(`http://localhost:5000/proiect-licenta-fc2a8/europe-west1/api/user/${user.id}/progress`, {
+                    const response = await fetch(`https://europe-west1-proiect-licenta-fc2a8.cloudfunctions.net/api/user/${user.id}/progress`, {
                         method: "PATCH"
                     });
 

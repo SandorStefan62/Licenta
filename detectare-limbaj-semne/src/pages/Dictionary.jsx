@@ -91,6 +91,7 @@ function DictionaryComponent({ isAdmin }) {
     }
 
     const handlePracticeRedirect = (video) => {
+        console.log("cuvant: ", video.name);
         navigate("/Practice", { state: { videoName: video.name } })
     }
 
