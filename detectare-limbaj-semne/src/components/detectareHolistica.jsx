@@ -28,7 +28,7 @@ function DetectareHolistica({ onPredictionChange }) {
     const [model, setModel] = useState(null);
     const [frames, setFrames] = useState([]);
     const [prediction, setPrediction] = useState('');
-    const actions = ["Bună ziua", "Mulțumesc", "Salut"];
+    const actions = ["Da", "Nu", "Eu", "Mulțumesc", "Salut", "La Revedere"];
     const treshold = 0.5;
 
     const [modelLoaded, setModelLoaded] = useState(false);
@@ -52,14 +52,6 @@ function DetectareHolistica({ onPredictionChange }) {
             corp = Array(132).fill(0);
         }
 
-        let fata = [];
-        if (results.faceLandmarks) {
-            const filteredFaceLandmarks = results.faceLandmarks.slice(0, 468);
-            fata = filteredFaceLandmarks.map(rez => [rez.x, rez.y, rez.z]).flat();
-        } else {
-            fata = Array(1404).fill(0);
-        }
-
         let manaStanga = [];
         if (results.leftHandLandmarks) {
             manaStanga = results.leftHandLandmarks.map(rez => [rez.x, rez.y, rez.z]).flat();
@@ -74,7 +66,7 @@ function DetectareHolistica({ onPredictionChange }) {
             manaDreapta = Array(63).fill(0);
         }
 
-        return [...corp, ...fata, ...manaStanga, ...manaDreapta];
+        return [...corp, ...manaStanga, ...manaDreapta];
     }
 
     function removeElements(landmarks, elements) {
@@ -146,6 +138,7 @@ function DetectareHolistica({ onPredictionChange }) {
                     const prediction = model.predict(tf.tensor([updatedFrames])).arraySync()[0];
                     if (prediction) {
                         const maxPrediction = tf.tensor(prediction).argMax().dataSync()[0];
+                        console.log(actions[maxPrediction] + ":" + prediction[maxPrediction]);
                         if (prediction[maxPrediction] > treshold) {
                             const predictedAction = actions[maxPrediction];
                             setPrediction(predictedAction);

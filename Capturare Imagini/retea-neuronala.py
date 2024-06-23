@@ -7,7 +7,7 @@ from keras.utils import to_categorical
 
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout, BatchNormalization, Bidirectional
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, EarlyStopping
 from keras.optimizers import Adam
 
 def citire_config(cale):
@@ -45,7 +45,7 @@ for cuvant in cuvinte:
 x = np.array(capturi)
 y = to_categorical(etichete).astype(int)
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05, random_state=42, shuffle=True)
 
 print("Verificare daca exista valori nule (NaN) in dataset...")
 print(f"Valori NaN in vectorul x_train: {np.isnan(x_train).sum()}, in vectorul x_test: {np.isnan(x_test).sum()}")
@@ -55,21 +55,22 @@ print(f"Valori NaN in vectorul y_train: {np.isnan(y_train).sum()}, in vectorul y
 logs_dir = os.path.join('logs', 'run_{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S")))
 tb_callback = TensorBoard(log_dir=logs_dir)
 
-optimizer = Adam(learning_rate=0.0001, epsilon=1.0)
+early_stopping = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
+
+optimizer = Adam(learning_rate=0.0005, epsilon=1.0)
 
 model = Sequential()
-model.add(Bidirectional(LSTM(64, return_sequences=True, activation='relu', input_shape=(60, 1662))))
-model.add(Bidirectional(LSTM(128, return_sequences=True, activation='relu')))
-model.add(Bidirectional(LSTM(64, return_sequences=False, activation='relu')))
+model.add(Bidirectional(LSTM(64, return_sequences=True, activation='tanh', input_shape=(60, 258))))
+model.add(Bidirectional(LSTM(128, return_sequences=True, activation='tanh')))
+model.add(Bidirectional(LSTM(64, return_sequences=False, activation='tanh')))
 model.add(Dense(64, activation='relu'))
-model.add(Dropout(0.5))
+model.add(Dropout(0.3))
 model.add(BatchNormalization())
 model.add(Dense(32, activation='relu'))
-model.add(Dropout(0.5))
-model.add(BatchNormalization())
+model.add(Dropout(0.3))
 model.add(Dense(cuvinte.shape[0], activation='softmax'))
 
 model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['categorical_accuracy'])
-model.fit(x_train, y_train, epochs=2000, callbacks=[tb_callback])
+model.fit(x_train, y_train, epochs=500, validation_data= (x_train, y_train), callbacks=[tb_callback])
 
 model.save('cuvinte.h5')

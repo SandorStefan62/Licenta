@@ -22,15 +22,6 @@ def extrapolare_valori(rezultat):
         corp = np.array(corp).flatten()
     else:
         corp = np.zeros(132)
-    
-    fata = []
-    if rezultat.face_landmarks:
-        for rez in rezultat.face_landmarks.landmark:
-            aux = np.array([rez.x, rez.y, rez.z])
-            fata.append(aux)
-        fata = np.array(fata).flatten()
-    else:
-        fata = np.zeros(1404)
 
     mana_stanga = []
     if rezultat.left_hand_landmarks:
@@ -50,7 +41,7 @@ def extrapolare_valori(rezultat):
     else:
         mana_dreapta = np.zeros(63)
 
-    return np.concatenate([corp, fata, mana_stanga, mana_dreapta])
+    return np.concatenate([corp, mana_stanga, mana_dreapta])
 
 #model holistic si unelte pentru desenarea modelului
 mp_holistic = mp.solutions.holistic
@@ -70,11 +61,6 @@ culoare_puncte_reper_mana_dreapta = (43, 75, 238)
 
 #functie care genereaza si afiseaza harta topografica a fetei si mainilor
 def generare_puncte_reper(imagine, rezultat):
-
-    mp_drawing.draw_landmarks(imagine, rezultat.face_landmarks, mp_holistic.FACEMESH_TESSELATION,
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_fata, thickness = 1, circle_radius = 1),
-                              mp_drawing.DrawingSpec(culoare_puncte_reper_fata, thickness = 1, circle_radius = 1)
-                              )
     
     mp_drawing.draw_landmarks(imagine, rezultat.pose_landmarks,
                               mp_holistic.POSE_CONNECTIONS,
@@ -118,6 +104,7 @@ with mp_holistic.Holistic(min_detection_confidence=0.6, min_tracking_confidence=
     for cuvant in cuvinte:
         for captura in range(numar_capturi):
             for numar_cadru in range(lungime_captura):
+                print(numar_cadru)
 
                 ret, cadru = capturare.read()
 

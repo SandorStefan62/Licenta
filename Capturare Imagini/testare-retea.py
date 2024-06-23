@@ -28,15 +28,6 @@ def extrapolare_valori(rezultat):
         corp = np.array(corp).flatten()
     else:
         corp = np.zeros(132)
-    
-    fata = []
-    if rezultat.face_landmarks:
-        for rez in rezultat.face_landmarks.landmark:
-            aux = np.array([rez.x, rez.y, rez.z])
-            fata.append(aux)
-        fata = np.array(fata).flatten()
-    else:
-        fata = np.zeros(1404)
 
     mana_stanga = []
     if rezultat.left_hand_landmarks:
@@ -56,7 +47,7 @@ def extrapolare_valori(rezultat):
     else:
         mana_dreapta = np.zeros(63)
 
-    return np.concatenate([corp, fata, mana_stanga, mana_dreapta])
+    return np.concatenate([corp, mana_stanga, mana_dreapta])
 
 mp_holistic = mp.solutions.holistic
 capturare = cv2.VideoCapture(0)

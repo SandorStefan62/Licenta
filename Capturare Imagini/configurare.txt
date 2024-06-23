@@ -1,3 +1,3 @@
-cuvinte = buna ziua, multumesc, salut
+cuvinte = da, nu, eu, multumesc, salut, la revedere
 numar_capturi = 60
 lungime_captura = 60
